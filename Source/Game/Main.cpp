@@ -11,7 +11,7 @@
 
 #include "Common.h"
 
-#include "Game.h"
+#include "Game\Game.h"
 
 /*F+F+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
   Function: wWinMain
