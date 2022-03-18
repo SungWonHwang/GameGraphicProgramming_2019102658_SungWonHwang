@@ -1,7 +1,7 @@
 ﻿/*+===================================================================
   File:      MAIN.CPP
 
-  Summary:   This application serves as a test code for the project
+  Summary:   This application demonstrates creating a Direct3D 11 device
 
   Origin:    http://msdn.microsoft.com/en-us/library/windows/apps/ff729718.aspx
 
@@ -11,7 +11,7 @@
 
 #include "Common.h"
 
-#include "Game\Game.h"
+#include "Game/Game.h"
 
 /*F+F+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
   Function: wWinMain
@@ -36,7 +36,54 @@
 -----------------------------------------------------------------F-F*/
 INT WINAPI wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _In_ LPWSTR lpCmdLine, _In_ INT nCmdShow)
 {
-    library::PrintHi();
+    /*--------------------------------------------------------------------
+      TODO: Unreferenced parameters (remove the comment)
+    --------------------------------------------------------------------*/
+    UNREFERENCED_PARAMETER(hInstance);
+    UNREFERENCED_PARAMETER(hPrevInstance);
+    UNREFERENCED_PARAMETER(lpCmdLine);
+    UNREFERENCED_PARAMETER(nCmdShow);
 
-    return 0;
+
+    /*--------------------------------------------------------------------
+      TODO: Initialization (remove the comment)
+    --------------------------------------------------------------------*/
+    if (FAILED(library::InitWindow(hInstance, nCmdShow))) {
+        return 0;
+    }
+
+    if (FAILED(library::InitDevice()))
+    {
+        library::CleanupDevice();
+        return 0;
+    }
+
+    
+
+    // Main message loop
+    MSG msg = { 0 };
+
+    /*--------------------------------------------------------------------
+      TODO: Main message loop (remove the comment)
+    --------------------------------------------------------------------*/
+    while (WM_QUIT != msg.message)
+    {
+        if (PeekMessage(&msg, nullptr, 0, 0, PM_REMOVE))
+        {
+            TranslateMessage(&msg);
+            DispatchMessage(&msg);
+        }
+        else
+        {
+            library::Render();
+        }
+    }
+    /*--------------------------------------------------------------------
+      TODO: Destroy (remove the comment)
+    --------------------------------------------------------------------*/
+
+    library::CleanupDevice();
+
+    return static_cast<INT>(msg.wParam);
 }
+
