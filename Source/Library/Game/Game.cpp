@@ -258,12 +258,12 @@ namespace library
         g_pSwapChain->Present(0, 0);
     }
 
-    LRESULT CALLBACK WindowProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
+    LRESULT CALLBACK WindowProc(_In_ HWND hWnd, _In_ UINT uMsg, _In_ WPARAM wParam, _In_ LPARAM lParam)
     {
         PAINTSTRUCT ps;
         HDC hdc;
 
-        switch (message)
+        switch (uMsg)
         {
         case WM_PAINT:
             hdc = BeginPaint(hWnd, &ps);
@@ -278,7 +278,7 @@ namespace library
             // so we created the window without the resize border.
 
         default:
-            return DefWindowProc(hWnd, message, wParam, lParam);
+            return DefWindowProc(hWnd, uMsg, wParam, lParam);
         }
 
         return 0;
