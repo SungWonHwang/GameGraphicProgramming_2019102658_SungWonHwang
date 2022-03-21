@@ -141,7 +141,7 @@ namespace library
             if (SUCCEEDED(g_pd3dDevice.As(&dxgiDevice)))
             {
                 Microsoft::WRL::ComPtr<IDXGIAdapter> adapter;
-                hr = dxgiDevice->GetAdapter(&adapter);
+                hr = dxgiDevice->GetAdapter(adapter.GetAddressOf());
                 if (SUCCEEDED(hr))
                 {
                     hr = adapter->GetParent(IID_PPV_ARGS(dxgiFactory.GetAddressOf()));
@@ -173,7 +173,7 @@ namespace library
             hr = dxgiFactory2->CreateSwapChainForHwnd(g_pd3dDevice.Get(), g_hWnd, &sd, nullptr, nullptr, g_pSwapChain1.GetAddressOf());
             if (SUCCEEDED(hr))
             {
-                hr = g_pSwapChain1->QueryInterface(IID_PPV_ARGS(&g_pSwapChain));
+                hr = g_pSwapChain1.As(&g_pSwapChain);
             }
 
             //dxgiFactory2->Release();
