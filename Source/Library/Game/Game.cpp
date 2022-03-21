@@ -31,11 +31,6 @@ namespace library
     /*--------------------------------------------------------------------
       Forward declarations
     --------------------------------------------------------------------*/
-    HRESULT InitWindow(_In_ HINSTANCE hInstance, _In_ INT nCmdShow);
-    HRESULT InitDevice();
-    void CleanupDevice();
-    void Render();
-
     /*F+F+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
       Function: WindowProc
 
@@ -70,7 +65,7 @@ namespace library
         wcex.hCursor = LoadCursor(nullptr, IDC_ARROW);
         wcex.hbrBackground = (HBRUSH)(COLOR_WINDOW + 1);
         wcex.lpszMenuName = nullptr;
-        wcex.lpszClassName = L"TutorialWindowClass";
+        wcex.lpszClassName = L"GameGraphics";
         wcex.hIconSm = LoadIcon(wcex.hInstance, (LPCTSTR)IDI_TUTORIAL1);
         if (!RegisterClassEx(&wcex))
             return E_FAIL;
@@ -79,7 +74,7 @@ namespace library
         g_hInst = hInstance;
         RECT rc = { 0, 0, 800, 600 };
         AdjustWindowRect(&rc, WS_OVERLAPPEDWINDOW, FALSE);
-        g_hWnd = CreateWindow(L"TutorialWindowClass", L"Game Graphics Programming Lab 01: Direct3D 11 Basics",
+        g_hWnd = CreateWindow(L"GameGraphics", L"Game Graphics Programming Lab 01: Direct3D 11 Basics",
             WS_OVERLAPPED | WS_CAPTION | WS_SYSMENU | WS_MINIMIZEBOX,
             CW_USEDEFAULT, CW_USEDEFAULT, rc.right - rc.left, rc.bottom - rc.top, nullptr, nullptr, hInstance,
             nullptr);
@@ -158,17 +153,15 @@ namespace library
         Microsoft::WRL::ComPtr<IDXGIFactory1> dxgiFactory;
         {
             Microsoft::WRL::ComPtr<IDXGIDevice> dxgiDevice;
+            Microsoft::WRL::ComPtr<IDXGIDevice1> dxgiDevice1;
 
-            Microsoft::WRL::ComPtr<IDXGIDevice> dxgiDevice1;
-
-            
             if (SUCCEEDED(g_pd3dDevice.As(&dxgiDevice)))
             {
                 Microsoft::WRL::ComPtr<IDXGIAdapter> adapter;
                 hr = dxgiDevice->GetAdapter(&adapter);
                 if (SUCCEEDED(hr))
                 {
-                    hr = adapter->GetParent(__uuidof(IDXGIFactory1), reinterpret_cast<void**>(dxgiFactory.GetAddressOf()));
+                    hr = adapter->GetParent(IID_PPV_ARGS(dxgiFactory.GetAddressOf()));
                     //adapter->Release();
                 }
                 //dxgiDevice->Release();
@@ -179,14 +172,13 @@ namespace library
 
         // Create swap chain
         Microsoft::WRL::ComPtr<IDXGIFactory2> dxgiFactory2;
-        hr = dxgiFactory->QueryInterface(__uuidof(IDXGIFactory2), reinterpret_cast<void**>(dxgiFactory2.GetAddressOf()));
-        if (dxgiFactory2)
+        if (SUCCEEDED(dxgiFactory.As(&dxgiFactory2)))
         {
             // DirectX 11.1 or later
-            hr = g_pd3dDevice->QueryInterface(__uuidof(ID3D11Device1), reinterpret_cast<void**>(g_pd3dDevice1.GetAddressOf()));
+            hr = g_pd3dDevice->QueryInterface(IID_PPV_ARGS(&g_pd3dDevice1));
             if (SUCCEEDED(hr))
             {
-                (void)g_pImmediateContext->QueryInterface(__uuidof(ID3D11DeviceContext1), reinterpret_cast<void**>(g_pImmediateContext1.GetAddressOf()));
+                (void)g_pImmediateContext.As(&g_pImmediateContext1);
             }
 
             DXGI_SWAP_CHAIN_DESC1 sd = {};
@@ -201,7 +193,7 @@ namespace library
             hr = dxgiFactory2->CreateSwapChainForHwnd(g_pd3dDevice.Get(), g_hWnd, &sd, nullptr, nullptr, g_pSwapChain1.GetAddressOf());
             if (SUCCEEDED(hr))
             {
-                hr = g_pSwapChain1->QueryInterface(__uuidof(IDXGISwapChain), reinterpret_cast<void**>(g_pSwapChain.GetAddressOf()));
+                hr = g_pSwapChain1->QueryInterface(IID_PPV_ARGS(&g_pSwapChain));
             }
 
             //dxgiFactory2->Release();
@@ -235,7 +227,7 @@ namespace library
 
         // Create a render target view
         Microsoft::WRL::ComPtr<ID3D11Texture2D> pBackBuffer;
-        hr = g_pSwapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), reinterpret_cast<void**>(pBackBuffer.GetAddressOf()));
+        hr = g_pSwapChain->GetBuffer(0, IID_PPV_ARGS(&pBackBuffer));
         if (FAILED(hr))
             return hr;
 
@@ -298,9 +290,6 @@ namespace library
         case WM_DESTROY:
             PostQuitMessage(0);
             break;
-
-            // Note that this tutorial does not handle resizing (WM_SIZE) requests,
-            // so we created the window without the resize border.
 
         default:
             return DefWindowProc(hWnd, uMsg, wParam, lParam);
