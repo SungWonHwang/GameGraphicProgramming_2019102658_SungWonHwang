@@ -10,15 +10,7 @@ namespace library
     HWND                    g_hWnd = nullptr;
     D3D_DRIVER_TYPE         g_driverType = D3D_DRIVER_TYPE_NULL;
     D3D_FEATURE_LEVEL       g_featureLevel = D3D_FEATURE_LEVEL_11_0;
-    /*
-    ID3D11Device* g_pd3dDevice = nullptr;
-    ID3D11Device1* g_pd3dDevice1 = nullptr;
-    ID3D11DeviceContext* g_pImmediateContext = nullptr;
-    ID3D11DeviceContext1* g_pImmediateContext1 = nullptr;
-    IDXGISwapChain* g_pSwapChain = nullptr;
-    IDXGISwapChain1* g_pSwapChain1 = nullptr;
-    ID3D11RenderTargetView* g_pRenderTargetView = nullptr;
-    */
+
     Microsoft::WRL::ComPtr<ID3D11Device> g_pd3dDevice = nullptr;
     Microsoft::WRL::ComPtr<ID3D11Device1> g_pd3dDevice1 = nullptr;
     Microsoft::WRL::ComPtr<ID3D11DeviceContext> g_pImmediateContext = nullptr;
@@ -120,10 +112,6 @@ namespace library
         for (UINT driverTypeIndex = 0; driverTypeIndex < numDriverTypes; driverTypeIndex++)
         {
             g_driverType = driverTypes[driverTypeIndex];
-            /*
-            hr = D3D11CreateDevice(nullptr, g_driverType, nullptr, createDeviceFlags, featureLevels, numFeatureLevels,
-                D3D11_SDK_VERSION, &g_pd3dDevice, &g_featureLevel, &g_pImmediateContext);
-                */
 
              hr = D3D11CreateDevice(nullptr, g_driverType, nullptr, createDeviceFlags, featureLevels, numFeatureLevels,
                 D3D11_SDK_VERSION, g_pd3dDevice.GetAddressOf(), &g_featureLevel, g_pImmediateContext.GetAddressOf());
@@ -133,14 +121,9 @@ namespace library
             if (hr == E_INVALIDARG)
             {
                 // DirectX 11.0 platforms will not recognize D3D_FEATURE_LEVEL_11_1 so we need to retry without it
-                /*
-                hr = D3D11CreateDevice(nullptr, g_driverType, nullptr, createDeviceFlags, &featureLevels[1], numFeatureLevels - 1,
-                    D3D11_SDK_VERSION, &g_pd3dDevice, &g_featureLevel, &g_pImmediateContext);
-                    */
 
                 hr = D3D11CreateDevice(nullptr, g_driverType, nullptr, createDeviceFlags, &featureLevels[1], numFeatureLevels - 1,
                     D3D11_SDK_VERSION, g_pd3dDevice.GetAddressOf(), &g_featureLevel, g_pImmediateContext.GetAddressOf());
-
             }
 
             if (SUCCEEDED(hr))
@@ -162,9 +145,7 @@ namespace library
                 if (SUCCEEDED(hr))
                 {
                     hr = adapter->GetParent(IID_PPV_ARGS(dxgiFactory.GetAddressOf()));
-                    //adapter->Release();
                 }
-                //dxgiDevice->Release();
             }
         }
         if (FAILED(hr))
@@ -175,8 +156,7 @@ namespace library
         if (SUCCEEDED(dxgiFactory.As(&dxgiFactory2)))
         {
             // DirectX 11.1 or later
-            hr = g_pd3dDevice->QueryInterface(IID_PPV_ARGS(&g_pd3dDevice1));
-            if (SUCCEEDED(hr))
+            if (SUCCEEDED(g_pd3dDevice.As(&g_pd3dDevice1)))
             {
                 (void)g_pImmediateContext.As(&g_pImmediateContext1);
             }
@@ -220,8 +200,6 @@ namespace library
         // Note this tutorial doesn't handle full-screen swapchains so we block the ALT+ENTER shortcut
         dxgiFactory->MakeWindowAssociation(g_hWnd, DXGI_MWA_NO_ALT_ENTER);
 
-        //dxgiFactory->Release();
-
         if (FAILED(hr))
             return hr;
 
@@ -232,7 +210,6 @@ namespace library
             return hr;
 
         hr = g_pd3dDevice->CreateRenderTargetView(pBackBuffer.Get(), nullptr, g_pRenderTargetView.GetAddressOf());
-        //pBackBuffer->Release();
         if (FAILED(hr))
             return hr;
 
@@ -256,15 +233,6 @@ namespace library
     void CleanupDevice()
     {
         if (g_pImmediateContext) g_pImmediateContext->ClearState();
-        /*
-        if (g_pRenderTargetView) g_pRenderTargetView->Release();
-        if (g_pSwapChain1) g_pSwapChain1->Release();
-        if (g_pSwapChain) g_pSwapChain->Release();
-        if (g_pImmediateContext1) g_pImmediateContext1->Release();
-        if (g_pImmediateContext) g_pImmediateContext->Release();
-        if (g_pd3dDevice1) g_pd3dDevice1->Release();
-        if (g_pd3dDevice) g_pd3dDevice->Release();
-        */
     }
 
 
