@@ -29,23 +29,14 @@ namespace library
     --------------------------------------------------------------------*/
     HRESULT MainWindow::Initialize(_In_ HINSTANCE hInstance, _In_ INT nCmdShow, _In_ PCWSTR pszWindowName)
     {
-        // Register class
-        WNDCLASSEX wcex;
-        wcex.cbSize = sizeof(WNDCLASSEX);
-        wcex.style = CS_HREDRAW | CS_VREDRAW;
-        wcex.lpfnWndProc = WindowProc;
-        wcex.cbClsExtra = 0;
-        wcex.cbWndExtra = 0;
-        wcex.hInstance = hInstance;
-        wcex.hIcon = LoadIcon(hInstance, (LPCTSTR)IDI_TUTORIAL1);
-        wcex.hCursor = LoadCursor(nullptr, IDC_ARROW);
-        wcex.hbrBackground = (HBRUSH)(COLOR_WINDOW + 1);
-        wcex.lpszMenuName = nullptr;
-        wcex.lpszClassName = L"GameGraphics";
-        wcex.hIconSm = LoadIcon(wcex.hInstance, (LPCTSTR)IDI_TUTORIAL1);
-        if (!RegisterClassEx(&wcex))
-            return E_FAIL;
 
+        m_hInstance = hInstance;
+        m_pszWindowName = pszWindowName;
+
+
+        if (!initialize(hInstance, nCmdShow, pszWindowName, WS_OVERLAPPEDWINDOW))
+            return E_FAIL;
+        /*
         // Create window
         g_hInst = hInstance;
         RECT rc = { 0, 0, 800, 600 };
@@ -56,11 +47,30 @@ namespace library
             nullptr);
         if (!g_hWnd)
             return E_FAIL;
+            */
 
-        ShowWindow(g_hWnd, nCmdShow);
+        ShowWindow(GetWindow(), nCmdShow);
 
         return S_OK;
     }
+
+
+    /*
+    HWND hwnd = CreateWindowEx(
+    0,                              // Optional window styles.
+    CLASS_NAME,                     // Window class
+    L"Learn to Program Windows",    // Window text
+    WS_OVERLAPPEDWINDOW,            // Window style
+
+    // Size and position
+    CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT,
+
+    NULL,       // Parent window    
+    NULL,       // Menu
+    hInstance,  // Instance handle
+    pState      // Additional application data
+    );
+    */
 
 
     /*M+M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M
@@ -75,8 +85,8 @@ namespace library
       TODO: MainWindow::GetWindowClassName definition (remove the comment)
     --------------------------------------------------------------------*/
 
-    PCWSTR MainWindow::GetWindowClassName() const {
-        return L"Game Graphics Programming";
+    PCWSTR MainWindow::GetWindowClassName() const{
+        return PCWSTR();
     };
 
 
@@ -121,8 +131,8 @@ namespace library
             return DefWindowProc(m_hWnd, uMsg, wParam, lParam);
         }
         return TRUE;
-    }
 
+    };
 
 
 }

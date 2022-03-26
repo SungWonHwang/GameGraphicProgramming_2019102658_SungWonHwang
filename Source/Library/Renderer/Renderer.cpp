@@ -103,10 +103,10 @@ namespace library
             return hr;
 
         // Obtain DXGI factory from device (since we used nullptr for pAdapter above)
-        Microsoft::WRL::ComPtr<IDXGIFactory1> dxgiFactory;
+        ComPtr<IDXGIFactory1> dxgiFactory;
         {
-            Microsoft::WRL::ComPtr<IDXGIDevice> dxgiDevice;
-            Microsoft::WRL::ComPtr<IDXGIDevice1> dxgiDevice1;
+            ComPtr<IDXGIDevice> dxgiDevice;
+            ComPtr<IDXGIDevice1> dxgiDevice1;
 
             if (SUCCEEDED(m_d3dDevice.As(&dxgiDevice)))
             {
@@ -174,7 +174,7 @@ namespace library
             return hr;
 
         // Create a render target view
-        Microsoft::WRL::ComPtr<ID3D11Texture2D> pBackBuffer;
+        ComPtr<ID3D11Texture2D> pBackBuffer;
         hr = m_swapChain->GetBuffer(0, IID_PPV_ARGS(&pBackBuffer));
         if (FAILED(hr))
             return hr;

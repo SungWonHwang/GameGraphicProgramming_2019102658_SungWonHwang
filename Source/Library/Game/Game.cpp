@@ -16,6 +16,9 @@ namespace library
 	  TODO: Game::Game definition (remove the comment)
 	--------------------------------------------------------------------*/
 	Game::Game(PCWSTR pszGameName) {
+		PCWSTR m_pszGameName = pszGameName;
+		std::unique_ptr<MainWindow> m_mainWindow = nullptr;
+		std::unique_ptr<Renderer> m_renderer = nullptr;
 	};
 
 
@@ -40,6 +43,34 @@ namespace library
 	  TODO: Game::Initialize definition (remove the comment)
 	--------------------------------------------------------------------*/
 	HRESULT Game::Initialize(_In_ HINSTANCE hInstance, _In_ INT nCmdShow) {
+
+		m_mainWindow = std::make_unique<MainWindow>();
+		m_renderer = std::make_unique<Renderer>();
+
+		if (FAILED(m_mainWindow->Initialize(hInstance, nCmdShow, m_pszGameName))) {
+			return 0;
+		}
+
+		if (FAILED(m_renderer->Initialize(m_mainWindow->GetWindow()))) {
+			return 0;
+		}
+
+		return S_OK;
+
+		/*
+		if (FAILED(library::InitWindow(hInstance, nCmdShow))) {
+			return 0;
+		}
+
+		if (FAILED(library::InitDevice()))
+		{
+			library::CleanupDevice();
+			return 0;
+		}
+		*/
+
+
+
 	};
 
 
@@ -57,6 +88,44 @@ namespace library
 	--------------------------------------------------------------------*/
 
 	INT Game::Run() {
+		
+		MSG msg = { 0 };
+
+		while (WM_QUIT != msg.message)
+		{
+			if (PeekMessage(&msg, nullptr, 0, 0, PM_REMOVE))
+			{
+				TranslateMessage(&msg);
+				DispatchMessage(&msg);
+			}
+			else
+			{
+				m_renderer->Render();
+			}
+		}
+
+		return static_cast<INT>(msg.wParam);
+		/*
+		MSG msg = { 0 };
+
+		while (WM_QUIT != msg.message)
+		{
+			if (PeekMessage(&msg, nullptr, 0, 0, PM_REMOVE))
+			{
+				TranslateMessage(&msg);
+				DispatchMessage(&msg);
+			}
+			else
+			{
+				library::Render();
+			}
+		}
+
+		library::CleanupDevice();
+
+		return static_cast<INT>(msg.wParam);
+		*/
+
 	};
 
 
@@ -76,6 +145,4 @@ namespace library
 		return PCWSTR();
 	}
 	;
-
-
 }

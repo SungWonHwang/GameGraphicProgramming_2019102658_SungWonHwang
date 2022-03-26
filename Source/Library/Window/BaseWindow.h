@@ -100,20 +100,20 @@ namespace library
     template <class DerivedType>
     LRESULT BaseWindow<DerivedType>::WindowProc(_In_ HWND hWnd, _In_ UINT uMsg, _In_ WPARAM wParam, _In_ LPARAM lParam)
     {
-        m_hWnd = NULL; //TODO: 여기 한번 확인
-        DERIVED_TYPE* pThis = NULL;
+
+        DerivedType* pThis = NULL;
 
         if (uMsg == WM_NCCREATE)
         {
             CREATESTRUCT* pCreate = (CREATESTRUCT*)lParam;
-            pThis = (DERIVED_TYPE*)pCreate->lpCreateParams;
-            SetWindowLongPtr(hwnd, GWLP_USERDATA, (LONG_PTR)pThis);
+            pThis = (DerivedType*)pCreate->lpCreateParams;
+            SetWindowLongPtr(hWnd, GWLP_USERDATA, (LONG_PTR)pThis);
 
-            pThis->m_hwnd = hwnd;
+            pThis->m_hWnd = hWnd;
         }
         else
         {
-            pThis = (DERIVED_TYPE*)GetWindowLongPtr(hwnd, GWLP_USERDATA);
+            pThis = (DerivedType*)GetWindowLongPtr(hWnd, GWLP_USERDATA);
         }
         if (pThis)
         {
@@ -121,9 +121,10 @@ namespace library
         }
         else
         {
-            return DefWindowProc(hwnd, uMsg, wParam, lParam);
+            return DefWindowProc(hWnd, uMsg, wParam, lParam);
         }
     }
+
 
 
 
@@ -212,14 +213,21 @@ namespace library
         _In_opt_ HWND hWndParent,
         _In_opt_ HMENU hMenu
     ) {
-        HRESULT hr = S_OK;
+        WNDCLASS wc = { 0 };
 
-        m_hInstance = NULL;
-        m_hWnd = NULL;
-        m_pszWindowName=L"Game Graphics Programming";
+        wc.lpfnWndProc = BaseWindow<DerivedType>::WindowProc;
+        wc.hInstance = hInstance;
+        wc.lpszClassName = L"Game Graphics Programming";
 
-        return hr; //TODO: 여기 한번 확인
-    };
+        RegisterClass(&wc);
+
+        m_hWnd = CreateWindow(L"Game Graphics Programming", pszWindowName, dwStyle,
+            x, y, nWidth, nHeight, hWndParent, hMenu, hInstance, this);
+
+        return (m_hWnd ? TRUE : FALSE);
+
+    }
+
 
 
 
