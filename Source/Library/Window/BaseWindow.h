@@ -94,9 +94,7 @@ namespace library
         Returns:  LRESULT
                     Integer value that your program returns to Windows
     M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M-M*/
-    /*--------------------------------------------------------------------
-      TODO: BaseWindow<DerivedType>::WindowProc definition (remove the comment)
-    --------------------------------------------------------------------*/
+
     template <class DerivedType>
     LRESULT BaseWindow<DerivedType>::WindowProc(_In_ HWND hWnd, _In_ UINT uMsg, _In_ WPARAM wParam, _In_ LPARAM lParam)
     {
@@ -213,6 +211,12 @@ namespace library
         _In_opt_ HWND hWndParent,
         _In_opt_ HMENU hMenu
     ) {
+
+        m_hInstance = hInstance;
+        m_pszWindowName = pszWindowName;
+        m_hWnd = NULL;
+
+
         WNDCLASS wc = { 0 };
 
         wc.lpfnWndProc = BaseWindow<DerivedType>::WindowProc;
@@ -221,11 +225,9 @@ namespace library
 
         RegisterClass(&wc);
 
-        m_hWnd = CreateWindow(L"Game Graphics Programming", pszWindowName, dwStyle,
-            x, y, nWidth, nHeight, hWndParent, hMenu, hInstance, this);
+        m_hWnd = CreateWindow(L"Game Graphics Programming", pszWindowName, dwStyle, x, y, nWidth, nHeight, hWndParent, hMenu, hInstance, this);
 
         return (m_hWnd ? TRUE : FALSE);
-
     }
 
 
