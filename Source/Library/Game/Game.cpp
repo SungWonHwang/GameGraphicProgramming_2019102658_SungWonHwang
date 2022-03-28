@@ -80,6 +80,6 @@ namespace library
    M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M-M*/
    PCWSTR Game::GetGameName() const
    {
-      return PCWSTR();
+      return m_pszGameName;
    }
 }

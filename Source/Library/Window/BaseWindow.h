@@ -138,7 +138,7 @@ namespace library
     BaseWindow<DerivedType>::BaseWindow() {
         m_hInstance = NULL;
         m_hWnd = NULL;
-        m_pszWindowName=L"Game Graphics Programming";
+        m_pszWindowName= NULL;
 
     }
 

@@ -81,7 +81,7 @@ namespace library
     M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M-M*/
 
     PCWSTR MainWindow::GetWindowClassName() const{
-        return PCWSTR();
+        return L"Game Graphics Programming";
     };
 
 
