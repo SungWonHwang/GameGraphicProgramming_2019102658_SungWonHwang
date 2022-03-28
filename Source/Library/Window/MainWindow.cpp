@@ -28,24 +28,9 @@ namespace library
     HRESULT MainWindow::Initialize(_In_ HINSTANCE hInstance, _In_ INT nCmdShow, _In_ PCWSTR pszWindowName)
     {
 
-        m_hInstance = hInstance;
-        m_pszWindowName = pszWindowName;
-
-
-        if (!initialize(hInstance, nCmdShow, pszWindowName, WS_OVERLAPPEDWINDOW))
+        if (!initialize(hInstance, nCmdShow, pszWindowName, WS_OVERLAPPEDWINDOW)) {
             return E_FAIL;
-        /*
-        // Create window
-        g_hInst = hInstance;
-        RECT rc = { 0, 0, 800, 600 };
-        AdjustWindowRect(&rc, WS_OVERLAPPEDWINDOW, FALSE);
-        g_hWnd = CreateWindow(L"GameGraphics", L"Game Graphics Programming Lab 01: Direct3D 11 Basics",
-            WS_OVERLAPPED | WS_CAPTION | WS_SYSMENU | WS_MINIMIZEBOX,
-            CW_USEDEFAULT, CW_USEDEFAULT, rc.right - rc.left, rc.bottom - rc.top, nullptr, nullptr, hInstance,
-            nullptr);
-        if (!g_hWnd)
-            return E_FAIL;
-            */
+        }
 
         ShowWindow(GetWindow(), nCmdShow);
 
