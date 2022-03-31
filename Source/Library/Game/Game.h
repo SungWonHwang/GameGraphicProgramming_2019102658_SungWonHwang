@@ -12,6 +12,7 @@
 #pragma once
 
 #include "Common.h"
+#include <memory>
 
 #include "Renderer/Renderer.h"
 #include "Window/MainWindow.h"
