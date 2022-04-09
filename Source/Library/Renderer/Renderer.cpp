@@ -367,6 +367,11 @@ namespace library
         //m_immediateContext->PSSetShader(m_pixelShader.Get(), nullptr, 0);
         //m_immediateContext->Draw(3, 0);
 
+        //m_immediateContext->VSSetShader(m_vertexShaders, nullptr, 0);
+        //m_immediateContext->VSSetConstantBuffers(0, 1, &m_ConstantBuffer);
+        //m_immediateContext->PSSetShader(m_pixelShaders, nullptr, 0);
+        //m_immediateContext->DrawIndexed(36, 0, 0);        // 36 vertices needed for 12 triangles in a triangle list
+
         // Clear depth stencil view
         m_immediateContext->ClearDepthStencilView(
             m_depthStencilView.Get(),
