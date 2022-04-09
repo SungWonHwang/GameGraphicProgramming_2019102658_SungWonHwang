@@ -34,6 +34,9 @@
     <Filter Include="Source Files\Shaders">
       <UniqueIdentifier>{62554a6e-efeb-4f56-9199-dbcb452c4bf9}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\Shader">
+      <UniqueIdentifier>{6bab477e-1380-45d3-8892-fff61bb33507}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Common.h">
@@ -54,6 +57,21 @@
     <ClInclude Include="Window\BaseWindow.h">
       <Filter>Header Files\Window</Filter>
     </ClInclude>
+    <ClInclude Include="Renderer\DataTypes.h">
+      <Filter>Header Files\Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="Renderer\Renderable.h">
+      <Filter>Header Files\Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="Shader\PixelShader.h">
+      <Filter>Header Files\Shader</Filter>
+    </ClInclude>
+    <ClInclude Include="Shader\Shader.h">
+      <Filter>Header Files\Shader</Filter>
+    </ClInclude>
+    <ClInclude Include="Shader\VertexShader.h">
+      <Filter>Header Files\Shader</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Game\Game.cpp">
@@ -65,17 +83,29 @@
     <ClCompile Include="Renderer\Renderer.cpp">
       <Filter>Source Files\Renderer</Filter>
     </ClCompile>
+    <ClCompile Include="Renderer\Renderable.cpp">
+      <Filter>Source Files\Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="Shader\PixelShader.cpp">
+      <Filter>Source Files\Shaders</Filter>
+    </ClCompile>
+    <ClCompile Include="Shader\Shader.cpp">
+      <Filter>Source Files\Shaders</Filter>
+    </ClCompile>
+    <ClCompile Include="Shader\VertexShader.cpp">
+      <Filter>Source Files\Shaders</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <None Include="Shaders\Lab03.fxh">
+    <None Include="Shader\Lab03.fxh">
       <Filter>Source Files\Shaders</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>
-    <FxCompile Include="Shaders\Lab03_PS.hlsl">
+    <FxCompile Include="Shader\Lab03_PS.hlsl">
       <Filter>Source Files\Shaders</Filter>
     </FxCompile>
-    <FxCompile Include="Shaders\Lab03_VS.hlsl">
+    <FxCompile Include="Shader\Lab03_VS.hlsl">
       <Filter>Source Files\Shaders</Filter>
     </FxCompile>
   </ItemGroup>

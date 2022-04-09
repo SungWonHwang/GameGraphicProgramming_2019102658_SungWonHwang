@@ -12,9 +12,6 @@ namespace library
 
 	  Modifies: [m_pszGameName, m_mainWindow, m_renderer].
 	M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M-M*/
-	/*--------------------------------------------------------------------
-	  TODO: Game::Game definition (remove the comment)
-	--------------------------------------------------------------------*/
 
 	Game::Game(_In_ PCWSTR pszGameName)
 		: m_pszGameName(pszGameName)
@@ -38,9 +35,7 @@ namespace library
 	  Returns:  HRESULT
 				Status code
 	M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M-M*/
-	/*--------------------------------------------------------------------
-	  TODO: Game::Initialize definition (remove the comment)
-	--------------------------------------------------------------------*/
+
 
 	HRESULT Game::Initialize(_In_ HINSTANCE hInstance, _In_ INT nCmdShow)
 	{
@@ -69,13 +64,19 @@ namespace library
 	  Returns:  INT
 				  Status code to return to the operating system
 	M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M-M*/
-	/*--------------------------------------------------------------------
-	  TODO: Game::Run definition (remove the comment)
-	--------------------------------------------------------------------*/
 
 	INT Game::Run()
 	{
+		LARGE_INTEGER StartingTime, EndingTime;
+		LARGE_INTEGER Frequency;
+
+		FLOAT ElapsedMicroseconds;
+
 		MSG msg = { 0 };
+
+		QueryPerformanceFrequency(&Frequency);
+		QueryPerformanceCounter(&StartingTime);
+
 		while (WM_QUIT != msg.message)
 		{
 			if (PeekMessage(&msg, nullptr, 0, 0, PM_REMOVE))
@@ -85,12 +86,21 @@ namespace library
 			}
 			else
 			{
+				//Elapsed Time = (Stop Time - Start Time) / Frequency
+				QueryPerformanceCounter(&EndingTime);
+				ElapsedMicroseconds = (FLOAT)(EndingTime.QuadPart - StartingTime.QuadPart);
+				ElapsedMicroseconds /= (FLOAT)(Frequency.QuadPart);
+
+				m_renderer->Update(ElapsedMicroseconds);
+
 				m_renderer->Render();
 			}
 		}
 
 		return static_cast<INT>(msg.wParam);
 	}
+
+
 
 	/*M+M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M
 	  Method:   Game::GetGameName
@@ -100,12 +110,36 @@ namespace library
 	  Returns:  PCWSTR
 				  Name of the game
 	M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M-M*/
-	/*--------------------------------------------------------------------
-	  TODO: Game::GetGameName definition (remove the comment)
-	--------------------------------------------------------------------*/
 
 	PCWSTR Game::GetGameName() const
 	{
 		return L"Sample window Class";
 	}
+
+	/*M+M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M
+  Method:   Game::GetWindow
+
+  Summary:  Returns the main window
+
+  Returns:  std::unique_ptr<MainWindow>&
+			  The main window
+M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M-M*/
+
+	std::unique_ptr<MainWindow>& Game::GetWindow() {
+		return m_mainWindow;
+	};
+
+/*M+M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M
+  Method:   Game::GetRenderer
+
+  Summary:  Returns the renderer
+
+  Returns:  std::unique_ptr<Renderer>&
+			  The renderer
+M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M-M*/
+
+	std::unique_ptr<Renderer>& Game::GetRenderer() {
+		return m_renderer;
+	};
+
 }

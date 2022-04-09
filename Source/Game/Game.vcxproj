@@ -64,6 +64,12 @@
       <AdditionalDependencies>Libraryd.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(SolutionDir)..\Library\x64\Debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
+    <FxCompile>
+      <ShaderType>Effect</ShaderType>
+    </FxCompile>
+    <FxCompile>
+      <ShaderModel>5.0</ShaderModel>
+    </FxCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
@@ -84,9 +90,32 @@
       <AdditionalDependencies>Library.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(SolutionDir)..\Library\x64\Release;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
+    <FxCompile>
+      <ShaderType>Effect</ShaderType>
+    </FxCompile>
+    <FxCompile>
+      <ShaderModel>5.0</ShaderModel>
+    </FxCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Cube\AdditionalCube.cpp" />
+    <ClCompile Include="Cube\BaseCube.cpp" />
+    <ClCompile Include="Cube\YourCube.cpp" />
+    <ClCompile Include="Cube\YourCube2.cpp" />
     <ClCompile Include="Main.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <FxCompile Include="Shaders\PS.hlsl" />
+    <FxCompile Include="Shaders\VS.hlsl" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Shaders\Shaders.fxh" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Cube\AdditionalCube.h" />
+    <ClInclude Include="Cube\BaseCube.h" />
+    <ClInclude Include="Cube\YourCube.h" />
+    <ClInclude Include="Cube\YourCube2.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
