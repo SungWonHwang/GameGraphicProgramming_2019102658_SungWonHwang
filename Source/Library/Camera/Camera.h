@@ -42,7 +42,7 @@ namespace library
     C---C---C---C---C---C---C---C---C---C---C---C---C---C---C---C---C-C*/
     class Camera
     {
-        /*
+        
     public:
         Camera() = delete;
         Camera(_In_ const XMVECTOR& position);
@@ -87,6 +87,6 @@ namespace library
 
         XMMATRIX m_rotation;
         XMMATRIX m_view;
-        */
+        
     };
 }

@@ -93,6 +93,15 @@ namespace library
 
 				m_renderer->Update(ElapsedMicroseconds);
 
+               //**************
+				m_renderer->HandleInput(
+					m_mainWindow->GetDirections(),
+					m_mainWindow->GetMouseRelativeMovement(),
+					ElapsedMicroseconds
+				);
+				m_mainWindow->ResetMouseMovement();
+				//*******************
+
 				m_renderer->Render();
 			}
 		}

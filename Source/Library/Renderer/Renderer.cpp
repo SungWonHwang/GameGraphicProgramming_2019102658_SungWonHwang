@@ -24,7 +24,8 @@ namespace library
 
         m_depthStencil(nullptr),
         m_depthStencilView(nullptr),
-        m_view(XMMATRIX()),
+        //m_view(XMMATRIX()),
+        m_camera(XMVectorSet(0.0f, 0.0f, 0.0f, 0.0f)),
         m_projection(XMMATRIX()),
 
         m_renderables(std::unordered_map<PCWSTR, std::shared_ptr<Renderable>>()),
@@ -228,7 +229,9 @@ namespace library
         XMVECTOR Eye = XMVectorSet(0.0f, 1.0f, -5.0f, 0.0f);
         XMVECTOR At = XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
         XMVECTOR Up = XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
-        m_view = XMMatrixLookAtLH(Eye, At, Up);
+        //m_view = XMMatrixLookAtLH(Eye, At, Up);
+        //m_camera = XMMatrixLookAtLH(Eye, At, Up);
+
 
         float NearZ = 0.01f;
         float FarZ = 100.0f;
@@ -265,6 +268,18 @@ namespace library
                 const std::shared_ptr<Renderable>& renderable
                   Unique pointer to the renderable object
       Modifies: [m_renderables].
+      Returns:  HRESULT
+                  Status code.
+
+                  **********change**********
+
+      Args:     PCWSTR pszRenderableName
+                  Key of the renderable object
+                const std::shared_ptr<Renderable>& renderable
+                  Unique pointer to the renderable object
+
+      Modifies: [m_renderables].
+
       Returns:  HRESULT
                   Status code.
     M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M-M*/
@@ -334,6 +349,39 @@ namespace library
             return S_OK;
         }
     }
+
+    /*M+M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M
+      Method:   Renderer::HandleInput
+
+      Summary:  Add the pixel shader into the renderer and initialize it
+
+      Args:     const DirectionsInput& directions
+                  Data structure containing keyboard input data
+                const MouseRelativeMovement& mouseRelativeMovement
+                  Data structure containing mouse relative input data
+
+      Modifies: [m_camera].
+    M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M-M*/
+    /*--------------------------------------------------------------------
+      TODO: Renderer::HandleInput definition (remove the comment)
+    --------------------------------------------------------------------*/
+
+    void Renderer::HandleInput(
+        _In_ const DirectionsInput& directions,
+        _In_ const MouseRelativeMovement& mouseRelativeMovement,
+        _In_ FLOAT deltaTime
+    )
+    {
+        m_camera.HandleInput(
+            directions,
+            mouseRelativeMovement,
+            deltaTime
+        );
+    }
+
+
+
+
 
     /*M+M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M
       Method:   Renderer::Update
@@ -406,7 +454,8 @@ namespace library
 
             ConstantBuffer cb;
             cb.World = XMMatrixTranspose(itRender->second->GetWorldMatrix());
-            cb.View = XMMatrixTranspose(m_view);
+            //cb.View = XMMatrixTranspose(m_view);
+            cb.View = XMMatrixTranspose(m_camera.GetView());
             cb.Projection = XMMatrixTranspose(m_projection);
             m_immediateContext->UpdateSubresource(itRender->second->GetConstantBuffer().Get(), 0, NULL, &cb, 0, 0);
 

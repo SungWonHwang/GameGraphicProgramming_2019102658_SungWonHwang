@@ -12,9 +12,31 @@ namespace library
                  m_padding, m_cameraForward, m_cameraRight, m_cameraUp, 
                  m_eye, m_at, m_up, m_rotation, m_view].
     M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M-M*/
-    /*--------------------------------------------------------------------
-      TODO: Camera::Camera definition (remove the comment)
-    --------------------------------------------------------------------*/
+    Camera::Camera(_In_ const XMVECTOR& position):
+        m_yaw(0),
+        m_pitch(0),
+
+        //움직이는 정도
+        m_moveLeftRight(0),
+        m_moveBackForward(0),
+        m_moveUpDown(0),
+
+        m_travelSpeed(0.03f),
+        m_rotationSpeed(0.0005f),
+        m_padding(NULL),
+
+        // 카메라의 방위
+        m_cameraForward(DEFAULT_FORWARD),
+        m_cameraRight(DEFAULT_RIGHT),
+        m_cameraUp(DEFAULT_UP),
+
+        m_eye(position), //바라보는 지점
+        m_at(DEFAULT_UP),//카메라의 위치
+        m_up(DEFAULT_UP), //카메라의 위 방향
+
+        m_rotation(),
+        m_view(XMMatrixIdentity())
+    {};
 
     /*M+M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M
       Method:   Camera::GetEye
@@ -24,9 +46,10 @@ namespace library
       Returns:  const XMVECTOR&
                   The eye vector
     M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M-M*/
-    /*--------------------------------------------------------------------
-      TODO: Camera::GetEye definition (remove the comment)
-    --------------------------------------------------------------------*/
+    const XMVECTOR& Camera::GetEye() const {
+        return m_eye;
+    };
+
 
     /*M+M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M
       Method:   Camera::GetAt
@@ -36,9 +59,10 @@ namespace library
       Returns:  const XMVECTOR&
                   The at vector
     M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M-M*/
-    /*--------------------------------------------------------------------
-      TODO: Camera::GetAt definition (remove the comment)
-    --------------------------------------------------------------------*/
+
+    const XMVECTOR& Camera::GetAt() const {
+        return m_at;
+    };
 
     /*M+M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M
       Method:   Camera::GetUp
@@ -48,9 +72,10 @@ namespace library
       Returns:  const XMVECTOR&
                   The up vector
     M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M-M*/
-    /*--------------------------------------------------------------------
-      TODO: Camera::GetUp definition (remove the comment)
-    --------------------------------------------------------------------*/
+
+    const XMVECTOR& Camera::GetUp() const {
+        return m_up;
+    };
 
     /*M+M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M
       Method:   Camera::GetView
@@ -60,9 +85,10 @@ namespace library
       Returns:  const XMMATRIX&
                   The view matrix
     M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M-M*/
-    /*--------------------------------------------------------------------
-      TODO: Camera::GetView definition (remove the comment)
-    --------------------------------------------------------------------*/
+
+    const XMMATRIX& Camera::GetView() const {
+        return m_view;
+    };
 
     /*M+M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M
       Method:   Camera::HandleInput
@@ -83,6 +109,46 @@ namespace library
       TODO: Camera::HandleInput definition (remove the comment)
     --------------------------------------------------------------------*/
 
+    void Camera::HandleInput(_In_ const DirectionsInput& directions, _In_ const MouseRelativeMovement& mouseRelativeMovement, _In_ FLOAT deltaTime) {
+        
+        //keyboard
+        if (directions.bFront) {
+            m_moveBackForward += m_travelSpeed * deltaTime;
+        }
+        else if (directions.bBack) {
+            m_moveBackForward -= m_travelSpeed * deltaTime;
+
+        }
+
+        if (directions.bLeft) {
+            m_moveLeftRight -= m_travelSpeed * deltaTime;
+        }
+        else if (directions.bRight) {
+            m_moveLeftRight += m_travelSpeed * deltaTime;
+
+        }
+
+        if (directions.bUp) {
+            m_moveUpDown += m_travelSpeed * deltaTime;
+        }
+        else if (directions.bDown) {
+            m_moveUpDown -= m_travelSpeed * deltaTime;
+
+        }
+
+        //rotation
+        float mm_pitch = m_pitch + mouseRelativeMovement.Y * m_rotationSpeed * deltaTime;
+        m_yaw += mouseRelativeMovement.X * m_rotationSpeed * deltaTime;
+
+        if (mm_pitch < XM_PIDIV2 && mm_pitch> -XM_PIDIV2) {
+            m_pitch = m_pitch + mouseRelativeMovement.Y * m_rotationSpeed * deltaTime;
+        }
+
+        
+        Update(deltaTime);
+
+    };
+
     /*M+M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M
       Method:   Camera::Update
 
@@ -95,7 +161,28 @@ namespace library
                  m_cameraForward, m_eye, m_moveLeftRight, 
                  m_moveBackForward, m_moveUpDown, m_up, m_view].
     M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M-M*/
-    /*--------------------------------------------------------------------
-      TODO: Camera::Update definition (remove the comment)
-    --------------------------------------------------------------------*/
+
+    void Camera::Update(_In_ FLOAT deltaTime) {
+
+        m_rotation = XMMatrixRotationRollPitchYaw(m_pitch, m_yaw, 0);
+        m_at = XMVector3TransformCoord(DEFAULT_FORWARD, m_rotation);
+        m_at = XMVector3Normalize(m_at);
+
+        XMMATRIX RotateYTempMatrix = XMMatrixRotationY(m_yaw);
+        m_cameraRight = XMVector3TransformCoord(DEFAULT_RIGHT, RotateYTempMatrix);
+        m_cameraUp = XMVector3TransformCoord(m_cameraUp, RotateYTempMatrix);
+        m_cameraForward = XMVector3TransformCoord(DEFAULT_FORWARD, RotateYTempMatrix);
+
+        m_eye += m_moveLeftRight * m_cameraRight * m_travelSpeed;
+        m_eye += m_moveBackForward * m_cameraForward * m_travelSpeed;
+        m_eye += m_moveUpDown * m_cameraUp * m_travelSpeed;
+
+        m_moveLeftRight = 0.0f;
+        m_moveBackForward = 0.0f;
+        m_moveUpDown = 0.0f;
+
+        m_at += m_eye;
+
+        m_view = XMMatrixLookAtLH(m_eye, m_at, m_up);
+    };
 }
