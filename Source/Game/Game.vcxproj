@@ -69,6 +69,8 @@
     </FxCompile>
     <FxCompile>
       <ShaderModel>5.0</ShaderModel>
+      <DisableOptimizations>true</DisableOptimizations>
+      <EnableDebuggingInformation>true</EnableDebuggingInformation>
     </FxCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -100,6 +102,7 @@
   <ItemGroup>
     <ClCompile Include="Cube\AdditionalCube.cpp" />
     <ClCompile Include="Cube\BaseCube.cpp" />
+    <ClCompile Include="Cube\Cube.cpp" />
     <ClCompile Include="Cube\YourCube.cpp" />
     <ClCompile Include="Cube\YourCube2.cpp" />
     <ClCompile Include="Main.cpp" />
@@ -114,8 +117,13 @@
   <ItemGroup>
     <ClInclude Include="Cube\AdditionalCube.h" />
     <ClInclude Include="Cube\BaseCube.h" />
+    <ClInclude Include="Cube\Cube.h" />
     <ClInclude Include="Cube\YourCube.h" />
     <ClInclude Include="Cube\YourCube2.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="seafloor.dds" />
+    <Image Include="squaretile.dds" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

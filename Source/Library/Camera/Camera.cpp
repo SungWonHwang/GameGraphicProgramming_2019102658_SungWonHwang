@@ -13,6 +13,7 @@ namespace library
                  m_eye, m_at, m_up, m_rotation, m_view].
     M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M-M*/
     Camera::Camera(_In_ const XMVECTOR& position):
+        m_cbChangeOnCameraMovement(nullptr),
         m_yaw(0),
         m_pitch(0),
 
@@ -23,7 +24,7 @@ namespace library
 
         m_travelSpeed(0.03f),
         m_rotationSpeed(0.0005f),
-        m_padding(NULL),
+        m_padding(),
 
         // 카메라의 방위
         m_cameraForward(DEFAULT_FORWARD),
@@ -91,6 +92,20 @@ namespace library
     };
 
     /*M+M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M
+      Method:   Camera::GetConstantBuffer
+
+      Summary:  Returns the constant buffer
+
+      Returns:  ComPtr<ID3D11Buffer>&
+                  The constant buffer
+    M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M-M*/
+
+    ComPtr<ID3D11Buffer>& Camera::GetConstantBuffer()
+    {
+        return m_cbChangeOnCameraMovement;
+    }
+
+    /*M+M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M
       Method:   Camera::HandleInput
 
       Summary:  Sets the camera state according to the given input
@@ -147,7 +162,49 @@ namespace library
         
         Update(deltaTime);
 
+        /*
+        WCHAR szDebugMessage[64];  // 배열의 크기는 메시지의 길이에 따라 조정하시면 됩니다
+        swprintf_s(szDebugMessage, L"X: %ld\n", mouseRelativeMovement.X);
+        OutputDebugString(szDebugMessage);
+        WCHAR szDebugMessage2[64];  // 배열의 크기는 메시지의 길이에 따라 조정하시면 됩니다
+        swprintf_s(szDebugMessage2, L"Y: %ld\n", mouseRelativeMovement.Y);
+        OutputDebugString(szDebugMessage2);
+        */
+        
+
     };
+    /*M+M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M
+      Method:   Camera::Initialize
+
+      Summary:  Initialize the view matrix constant buffers
+
+      Args:     ID3D11Device* pDevice
+                  Pointer to a Direct3D 11 device
+
+      Modifies: [m_cbChangeOnCameraMovement].
+    M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M-M*/
+    /*--------------------------------------------------------------------
+      TODO: Camera::Initialize definition (remove the comment)
+    --------------------------------------------------------------------*/
+    HRESULT Camera::Initialize(_In_ ID3D11Device* device)
+    {
+        HRESULT hr = S_OK;
+
+        D3D11_BUFFER_DESC bd;
+        bd.ByteWidth = sizeof(CBChangeOnCameraMovement);
+        bd.Usage = D3D11_USAGE_DEFAULT;
+        bd.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+        bd.CPUAccessFlags = 0u;
+       
+        hr = device->CreateBuffer(&bd, nullptr, m_cbChangeOnCameraMovement.GetAddressOf());
+        if (FAILED(hr))
+        {
+            return hr;
+        }
+
+        return hr;
+    }
+
 
     /*M+M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M
       Method:   Camera::Update

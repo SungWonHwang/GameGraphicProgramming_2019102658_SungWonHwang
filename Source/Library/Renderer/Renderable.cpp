@@ -1,7 +1,41 @@
 #include "Renderer/Renderable.h"
+#include "Texture/DDSTextureLoader.h"
 
 namespace library
 {
+    /*M+M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M
+      Method:   Renderable::Renderable
+
+      Summary:  Constructor
+
+      Args:     const std::filesystem::path& textureFilePath
+                  Path to the texture to use
+
+      Modifies: [m_vertexBuffer, m_indexBuffer, m_constantBuffer,
+                 m_textureRV, m_samplerLinear, m_vertexShader,
+                 m_pixelShader, m_textureFilePath, m_world].
+    M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M-M*/
+    /*--------------------------------------------------------------------
+      TODO: Renderable::Renderable definition (remove the comment)
+    --------------------------------------------------------------------*/
+    Renderable::Renderable(_In_ const std::filesystem::path& textureFilePath):
+          m_vertexBuffer(nullptr)
+        , m_indexBuffer(nullptr)
+        , m_constantBuffer(nullptr)
+
+        , m_textureRV(nullptr)
+        , m_samplerLinear(nullptr)
+
+        , m_vertexShader(nullptr)
+        , m_pixelShader(nullptr)
+
+        , m_textureFilePath(textureFilePath)
+
+        , m_world()
+    {}
+
+
+
     /*M+M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M
       Method:   Renderable::initialize
 
@@ -14,6 +48,10 @@ namespace library
 
       Modifies: [m_vertexBuffer, m_indexBuffer, m_constantBuffer, 
                   m_world].
+
+     Modifies: [m_vertexBuffer, m_indexBuffer, m_constantBuffer, 
+                 m_textureRV, m_samplerLinear, m_world].
+
 
       Returns:  HRESULT
                   Status code
@@ -47,27 +85,49 @@ namespace library
         bd.CPUAccessFlags = 0;
 
         InitData.pSysMem = getIndices();
-
         hr = pDevice->CreateBuffer(&bd, &InitData, m_indexBuffer.GetAddressOf());
-
         if (FAILED(hr))
             return hr;
 
+        //******************change***************
+        // Create the constant buffers
         bd.Usage = D3D11_USAGE_DEFAULT;
-        bd.ByteWidth = sizeof(ConstantBuffer);
+        bd.ByteWidth = sizeof(CBChangesEveryFrame);
         bd.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
         bd.CPUAccessFlags = 0;
-
         hr = pDevice->CreateBuffer(&bd, nullptr, m_constantBuffer.GetAddressOf());
-
         if (FAILED(hr))
             return hr;
+
+
+        //******************add***************
+        // Load the Texture
+        hr = CreateDDSTextureFromFile(pDevice, m_textureFilePath.filename().wstring().c_str(), nullptr, m_textureRV.GetAddressOf());
+        if (FAILED(hr))
+            return hr;
+
+        // Create the sample state
+        D3D11_SAMPLER_DESC sampDesc = {};
+        sampDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
+        sampDesc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
+        sampDesc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
+        sampDesc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
+        sampDesc.ComparisonFunc = D3D11_COMPARISON_NEVER;
+        sampDesc.MinLOD = 0;
+        sampDesc.MaxLOD = D3D11_FLOAT32_MAX;
+        hr = pDevice->CreateSamplerState(&sampDesc, m_samplerLinear.GetAddressOf());
+        if (FAILED(hr))
+            return hr;
+
+
 
         // Initialize the world matrix
         m_world = XMMatrixIdentity();
 
         return S_OK;
     }
+
+
     /*M+M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M
       Method:   Renderable::SetVertexShader
 
@@ -204,6 +264,34 @@ namespace library
     }
 
     /*M+M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M
+      Method:   Renderable::GetTextureResourceView
+
+      Summary:  Returns the texture resource view
+
+      Returns:  ComPtr<ID3D11ShaderResourceView>&
+                  The texture resource view
+    M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M-M*/
+
+    ComPtr<ID3D11ShaderResourceView>& Renderable::GetTextureResourceView()
+    {
+        return m_textureRV;
+    }
+
+    /*M+M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M
+      Method:   Renderable::GetSamplerState
+
+      Summary:  Returns the sampler state
+
+      Returns:  ComPtr<ID3D11SamplerState>&
+                  The sampler state
+    M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M-M*/
+
+    ComPtr<ID3D11SamplerState>& Renderable::GetSamplerState()
+    {
+        return m_samplerLinear;
+    }
+
+    /*M+M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M
       Method:   Renderable::RotateX
 
       Summary:  Rotates around the x-axis
@@ -213,10 +301,12 @@ namespace library
 
       Modifies: [m_world].
     M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M-M*/
+    /*
     void Renderable::RotateX(_In_ FLOAT angle)
     {
         m_world *= XMMatrixRotationX(angle);
     }
+    */
 
     /*M+M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M
       Method:   Renderable::RotateY
@@ -228,10 +318,12 @@ namespace library
 
       Modifies: [m_world].
     M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M-M*/
+    /*
     void Renderable::RotateY(_In_ FLOAT angle)
     {
         m_world *= XMMatrixRotationY(angle);
     }
+    */
 
     /*M+M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M
       Method:   Renderable::RotateZ
@@ -243,10 +335,12 @@ namespace library
 
       Modifies: [m_world].
     M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M-M*/
+    /*
     void Renderable::RotateZ(_In_ FLOAT angle)
     {
         m_world *= XMMatrixRotationZ(angle);
     }
+    */
 
     /*M+M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M
       Method:   Renderable::RotateRollPitchYaw
@@ -262,10 +356,12 @@ namespace library
 
       Modifies: [m_world].
     M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M-M*/
+    /*
     void Renderable::RotateRollPitchYaw(_In_ FLOAT pitch, _In_ FLOAT yaw, _In_ FLOAT roll)
     {
         m_world *= XMMatrixRotationRollPitchYaw(pitch, yaw, roll);
     }
+    */
 
     /*M+M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M
       Method:   Renderable::Scale
@@ -281,10 +377,12 @@ namespace library
 
       Modifies: [m_world].
     M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M-M*/
+    /*
     void Renderable::Scale(_In_ FLOAT scaleX, _In_ FLOAT scaleY, _In_ FLOAT scaleZ)
     {
         m_world *= XMMatrixScaling(scaleX, scaleY, scaleZ);
     }
+    */
 
     /*M+M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M
       Method:   Renderable::Translate
@@ -296,8 +394,10 @@ namespace library
 
       Modifies: [m_world].
     M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M-M*/
+    /*
     void Renderable::Translate(_In_ const XMVECTOR& offset)
     {
         m_world *= XMMatrixTranslationFromVector(offset);
     }
+    */
 }

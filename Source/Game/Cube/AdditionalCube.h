@@ -1,14 +1,18 @@
-#pragma once
+﻿#pragma once
+
 #include "Common.h"
+
 #include "Cube/BaseCube.h"
-#include "Renderer/DataTypes.h"
-#include "Renderer/Renderable.h"
 
 class AdditionalCube : public BaseCube
 {
 public:
-	AdditionalCube() = default;
-	~AdditionalCube() = default;
+    AdditionalCube(const std::filesystem::path& textureFilePath);
+    AdditionalCube(const AdditionalCube& other) = delete;
+    AdditionalCube(AdditionalCube&& other) = delete;
+    AdditionalCube& operator=(const AdditionalCube& other) = delete;
+    AdditionalCube& operator=(AdditionalCube&& other) = delete;
+    ~AdditionalCube() = default;
 
-	virtual void Update(FLOAT deltaTime) override;
+    virtual void Update(_In_ FLOAT deltaTime) override;
 };
