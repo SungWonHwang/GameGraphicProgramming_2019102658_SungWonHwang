@@ -22,6 +22,7 @@ namespace library
     VertexShader::VertexShader(_In_ PCWSTR pszFileName, _In_ PCSTR pszEntryPoint, _In_ PCSTR pszShaderModel)
         : Shader(pszFileName, pszEntryPoint, pszShaderModel)
         , m_vertexShader(nullptr)
+        , m_vertexLayout(nullptr)
     { }
 
     /*M+M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M
@@ -72,6 +73,15 @@ namespace library
             , DXGI_FORMAT_R32G32_FLOAT
             , 0u
             , 12u
+            , D3D11_INPUT_PER_VERTEX_DATA
+            , 0u
+            },
+
+            { "NORMAL"
+            , 0u
+            , DXGI_FORMAT_R32G32B32_FLOAT
+            , 0u
+            , 20u
             , D3D11_INPUT_PER_VERTEX_DATA
             , 0u
             }

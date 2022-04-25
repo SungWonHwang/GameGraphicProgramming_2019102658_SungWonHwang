@@ -10,7 +10,7 @@
 //--------------------------------------------------------------------------------------
 
 Texture2D txDiffuse : register(t0);
-SamplerState samLiner : register(s0);
+SamplerState samLinear : register(s0);
 
 /*C+C+++C+++C+++C+++C+++C+++C+++C+++C+++C+++C+++C+++C+++C+++C+++C+++C
   Cbuffer:  cbChangeOnCameraMovement
@@ -99,7 +99,7 @@ PS_INPUT VS(VS_INPUT input)
 float4 PS(PS_INPUT input) : SV_Target
 {
     float4 albedo = txDiffuse.Sample(
-    samLiner,
+    samLinear,
     input.TexCoord
     );
 

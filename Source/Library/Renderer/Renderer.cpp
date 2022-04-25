@@ -4,18 +4,16 @@ namespace library
 {
 	/*M+M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M
 	  Method:   Renderer::Renderer
-	  Summary:  Constructor
-	  Modifies: [m_driverType, m_featureLevel, m_d3dDevice, m_d3dDevice1,
-				  m_immediateContext, m_immediateContext1, m_swapChain,
-				  m_swapChain1, m_renderTargetView, m_vertexShader,
-				  m_pixelShader, m_vertexLayout, m_vertexBuffer].
 
-	Modifies: [m_driverType, m_featureLevel, m_d3dDevice, m_d3dDevice1,
+	  Summary:  Constructor
+
+	  Modifies: [m_driverType, m_featureLevel, m_d3dDevice, m_d3dDevice1,
 				 m_immediateContext, m_immediateContext1, m_swapChain,
 				 m_swapChain1, m_renderTargetView, m_depthStencil,
 				 m_depthStencilView, m_cbChangeOnResize, m_camera,
 				 m_projection, m_renderables, m_vertexShaders,
 				 m_pixelShaders].
+
 	M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M-M*/
 
 	Renderer::Renderer()
@@ -33,16 +31,21 @@ namespace library
 		m_depthStencilView(nullptr),
 
 		m_cbChangeOnResize(nullptr),
-		m_padding(),
+		//m_padding(),
 		//m_view(XMMATRIX()),
 		m_camera(XMVectorSet(0.0f, 0.0f, 0.0f, 0.0f)),
 		m_projection(XMMATRIX()),
+
+		m_cbLights(nullptr),
+		m_aPointLights{ std::shared_ptr<PointLight>() },
 
 		m_renderables(std::unordered_map<std::wstring, std::shared_ptr<Renderable>>()),
 		m_vertexShaders(std::unordered_map<std::wstring, std::shared_ptr<VertexShader>>()),
 		m_pixelShaders(std::unordered_map<std::wstring, std::shared_ptr<PixelShader>>())
 	{
 	}
+
+
 
 	/*M+M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M
 	  Method:   Renderer::Initialize
@@ -53,10 +56,18 @@ namespace library
 				  m_d3dDevice1, m_immediateContext1, m_swapChain1,
 				  m_swapChain, m_renderTargetView, m_vertexShader,
 				  m_vertexLayout, m_pixelShader, m_vertexBuffer].
+
+				  **********change**********
+				  *
+	 Modifies: [m_d3dDevice, m_featureLevel, m_immediateContext,
+				 m_d3dDevice1, m_immediateContext1, m_swapChain1,
+				 m_swapChain, m_renderTargetView, m_cbChangeOnResize,
+				 m_projection, m_cbLights, m_camera, m_vertexShaders,
+				 m_pixelShaders, m_renderables].
 	  Returns:  HRESULT
 				  Status code
 	M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M-M*/
-
+	
 	HRESULT Renderer::Initialize(_In_ HWND hWnd)
 	{
 		HRESULT hr = S_OK;
@@ -222,7 +233,7 @@ namespace library
 			return hr;
 		}
 
-		// Create the depth stencil view
+		// Create the depth stencil OMSetRenderTargets
 		D3D11_DEPTH_STENCIL_VIEW_DESC descDSV;
 		ZeroMemory(&descDSV, sizeof(descDSV));
 		descDSV.Format = descDepth.Format;
@@ -241,8 +252,18 @@ namespace library
 		XMVECTOR Up = XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
 		//m_view = XMMatrixLookAtLH(Eye, At, Up);
 		//m_camera = XMMatrixLookAtLH(Eye, At, Up);
-		
 
+
+		//**************************change*********************
+		//about lights
+		D3D11_BUFFER_DESC bdLight = {};
+		bdLight.ByteWidth = sizeof(CBLights);
+		bdLight.Usage = D3D11_USAGE_DEFAULT;
+		bdLight.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+		bdLight.CPUAccessFlags = 0u;
+		if (FAILED(m_d3dDevice->CreateBuffer(&bdLight, nullptr, m_cbLights.GetAddressOf())))
+		{
+		}
 
 		// Initializing Objects
 		std::unordered_map<std::wstring, std::shared_ptr<Renderable>>::iterator itRender;
@@ -277,6 +298,7 @@ namespace library
 		bd.Usage = D3D11_USAGE_DEFAULT;
 		bd.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
 		bd.CPUAccessFlags = 0u;
+
 
 		hr = m_d3dDevice->CreateBuffer(&bd, nullptr, m_cbChangeOnResize.GetAddressOf());
 		if (FAILED(hr))
@@ -383,6 +405,41 @@ namespace library
 		}
 	}
 
+
+	/*M+M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M
+	Method:   Renderer::AddPointLight
+
+	 Summary:  Add a point light
+
+	 Args:     size_t index
+			  Index of the point light
+			const std::shared_ptr<PointLight>& pointLight
+			  Shared pointer to the point light object
+
+	Modifies: [m_aPointLights].
+
+	 Returns:  HRESULT
+			  Status code.
+	M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M-M*/
+	/*--------------------------------------------------------------------
+	 TODO: Renderer::AddPointLight definition (remove the comment)
+	 When the index exceeds the size of possible lights, it returns E_FAIL
+	 else, add the light to designated index
+	--------------------------------------------------------------------*/
+
+	HRESULT Renderer::AddPointLight(_In_ size_t index, _In_ const std::shared_ptr<PointLight>& pPointLight)
+	{
+		if (index >= NUM_LIGHTS)
+		{
+			return E_FAIL;
+		}
+
+		m_aPointLights[index] = pPointLight;
+
+		return S_OK;
+	}
+
+
 	/*M+M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M
 	  Method:   Renderer::HandleInput
 
@@ -436,9 +493,11 @@ namespace library
 	  Method:   Renderer::Render
 	  Summary:  Render the frame
 	M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M-M*/
-	
+
+
 	void Renderer::Render()
 	{
+
 		// Just clear the backbuffer
 		m_immediateContext->ClearRenderTargetView(m_renderTargetView.Get(), Colors::MidnightBlue);
 
@@ -451,14 +510,39 @@ namespace library
 		);
 
 		D3D11_BUFFER_DESC bd = {};
-		
+
 		bd.ByteWidth = sizeof(CBChangeOnCameraMovement);
 		bd.Usage = D3D11_USAGE_DEFAULT;
 		bd.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
 		bd.CPUAccessFlags = 0u;
 
 		if (FAILED(m_d3dDevice->CreateBuffer(&bd, nullptr, m_camera.GetConstantBuffer().GetAddressOf())))
-		{}
+		{
+		}
+
+		//about lights
+		D3D11_BUFFER_DESC bdLight = {};
+		bdLight.ByteWidth = sizeof(CBLights);
+		bdLight.Usage = D3D11_USAGE_DEFAULT;
+		bdLight.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+		bdLight.CPUAccessFlags = 0;
+		bdLight.MiscFlags = 0;
+		bdLight.StructureByteStride = 0;
+
+		if (FAILED(m_d3dDevice->CreateBuffer(&bdLight , nullptr, m_cbLights.GetAddressOf())))
+		{
+		}
+
+		CBLights cbLights ;
+		for (int i = 0; i < NUM_LIGHTS; i++)
+		{
+			cbLights.LightPositions[i] = m_aPointLights[i]->GetPosition();
+			cbLights.LightColors[i] = m_aPointLights[i]->GetColor();
+			//MessageBox(nullptr, L"Fail", L"gg", NULL);
+		}
+		m_immediateContext->UpdateSubresource(m_cbLights.Get(), 0, nullptr, &cbLights, 0u, 0u);
+
+
 
 		// Create camera constant buffer and update
 		CBChangeOnCameraMovement cbChangeOnCameraMovement =
@@ -480,11 +564,13 @@ namespace library
 				.CPUAccessFlags = 0u
 			};
 			if (FAILED(m_d3dDevice->CreateBuffer(&bd, nullptr, itRender->second->GetConstantBuffer().GetAddressOf())))
-			{}
+			{
+			}
 
 			CBChangesEveryFrame cbChangesEveryFrame =
 			{
-				.World = XMMatrixTranspose(itRender->second->GetWorldMatrix())
+				.World = XMMatrixTranspose(itRender->second->GetWorldMatrix()),
+				.OutputColor = itRender->second->GetOutputColor()
 			};
 			m_immediateContext->UpdateSubresource(itRender->second->GetConstantBuffer().Get(), 0u, nullptr, &cbChangesEveryFrame, 0u, 0u);
 
@@ -499,7 +585,7 @@ namespace library
 				&stride,
 				&offset
 			);
-	
+
 			m_immediateContext->IASetIndexBuffer(
 				itRender->second->GetIndexBuffer().Get(),
 				DXGI_FORMAT_R16_UINT,
@@ -535,6 +621,11 @@ namespace library
 				1,
 				itRender->second->GetConstantBuffer().GetAddressOf()
 			);
+			m_immediateContext->VSSetConstantBuffers(
+				3,
+				1,
+				m_cbLights.GetAddressOf()
+			);
 
 			// Set up the pixel shader stage.
 
@@ -543,26 +634,35 @@ namespace library
 				nullptr,
 				0
 			);
+
 			m_immediateContext->PSSetConstantBuffers(
-				2, 
-				1, 
+				2,
+				1,
 				itRender->second->GetConstantBuffer().GetAddressOf()
 			);
+			m_immediateContext->PSSetConstantBuffers(
+				3,
+				1,
+				m_cbLights.GetAddressOf()
+			);
+
 			m_immediateContext->PSSetShaderResources(
 				0,
 				1,
 				itRender->second->GetTextureResourceView().GetAddressOf()
 			);
+
 			m_immediateContext->PSSetSamplers(
-				0, 
-				1, 
+				0,
+				1,
 				itRender->second->GetSamplerState().GetAddressOf()
 			);
+			
 
 			// Calling Draw tells Direct3D to start sending commands to the graphics device.
 			m_immediateContext->DrawIndexed(
 				itRender->second->GetNumIndices(),
-				0, 
+				0,
 				0
 			);
 		}
@@ -571,7 +671,7 @@ namespace library
 		m_swapChain->Present(0, 0);
 	}
 
-	
+
 
 	/*M+M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M
 	  Method:   Renderer::SetVertexShaderOfRenderable
@@ -620,6 +720,7 @@ namespace library
 	{
 		if (!m_renderables.contains(pszRenderableName))
 		{
+
 			return E_FAIL;
 		}
 		else
