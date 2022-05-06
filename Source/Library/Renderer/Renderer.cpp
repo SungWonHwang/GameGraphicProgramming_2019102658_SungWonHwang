@@ -16,34 +16,27 @@ namespace library
 
 	M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M-M*/
 
-	Renderer::Renderer()
-		: m_driverType(D3D_DRIVER_TYPE_NULL),
-		m_featureLevel(D3D_FEATURE_LEVEL_11_0),
-		m_d3dDevice(nullptr),
-		m_d3dDevice1(nullptr),
-		m_immediateContext(nullptr),
-		m_immediateContext1(nullptr),
-		m_swapChain(nullptr),
-		m_swapChain1(nullptr),
-		m_renderTargetView(nullptr),
-
-		m_depthStencil(nullptr),
-		m_depthStencilView(nullptr),
-
-		m_cbChangeOnResize(nullptr),
-		//m_padding(),
-		//m_view(XMMATRIX()),
-		m_camera(XMVectorSet(0.0f, 0.0f, 0.0f, 0.0f)),
-		m_projection(XMMATRIX()),
-
-		m_cbLights(nullptr),
-		m_aPointLights{ std::shared_ptr<PointLight>() },
-
-		m_renderables(std::unordered_map<std::wstring, std::shared_ptr<Renderable>>()),
-		m_vertexShaders(std::unordered_map<std::wstring, std::shared_ptr<VertexShader>>()),
-		m_pixelShaders(std::unordered_map<std::wstring, std::shared_ptr<PixelShader>>())
-	{
-	}
+	Renderer::Renderer() :
+		m_driverType(D3D_DRIVER_TYPE_HARDWARE),
+		m_featureLevel(D3D_FEATURE_LEVEL_11_1),
+		m_d3dDevice(),
+		m_d3dDevice1(),
+		m_immediateContext(),
+		m_immediateContext1(),
+		m_swapChain(),
+		m_swapChain1(),
+		m_renderTargetView(),
+		m_depthStencil(),
+		m_depthStencilView(),
+		m_cbChangeOnResize(),
+		m_cbLights(),
+		m_camera(XMVectorSet(0.0f, 0.0f, -5.0f, 0.0f)),
+		m_projection(),
+		m_renderables(),
+		m_aPointLights(),
+		m_vertexShaders(),
+		m_pixelShaders()
+	{}
 
 
 
@@ -67,7 +60,7 @@ namespace library
 	  Returns:  HRESULT
 				  Status code
 	M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M-M*/
-	
+
 	HRESULT Renderer::Initialize(_In_ HWND hWnd)
 	{
 		HRESULT hr = S_OK;
@@ -339,18 +332,12 @@ namespace library
 				  Status code.
 	M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M-M*/
 
-	HRESULT Renderer::AddRenderable(PCWSTR pszRenderableName, const std::shared_ptr<Renderable>& renderable)
+	HRESULT Renderer::AddRenderable(_In_ PCWSTR pszRenderableName, _In_ const std::shared_ptr<Renderable>& renderable)
 	{
-		if (m_renderables.contains(pszRenderableName))
-		{
-			return E_FAIL;
-		}
-		else
-		{
-			m_renderables.insert(std::make_pair(pszRenderableName, renderable));
+		if (m_renderables.count(pszRenderableName) > 0) return E_FAIL;
+		m_renderables.insert({ pszRenderableName, renderable });
 
-			return S_OK;
-		}
+		return S_OK;
 	}
 
 	/*M+M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M
@@ -365,18 +352,12 @@ namespace library
 				  Status code
 	M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M-M*/
 
-	HRESULT Renderer::AddVertexShader(PCWSTR pszVertexShaderName, const std::shared_ptr<VertexShader>& vertexShader)
+	HRESULT Renderer::AddVertexShader(_In_ PCWSTR pszVertexShaderName, _In_ const std::shared_ptr<VertexShader>& vertexShader)
 	{
-		if (m_vertexShaders.contains(pszVertexShaderName))
-		{
-			return E_FAIL;
-		}
-		else
-		{
-			m_vertexShaders.insert(std::make_pair(pszVertexShaderName, vertexShader));
+		if (m_vertexShaders.count(pszVertexShaderName) > 0) return E_FAIL;
+		m_vertexShaders.insert({ pszVertexShaderName, vertexShader });
 
-			return S_OK;
-		}
+		return S_OK;
 	}
 
 	/*M+M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M
@@ -391,18 +372,12 @@ namespace library
 				  Status code
 	M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M-M*/
 
-	HRESULT Renderer::AddPixelShader(PCWSTR pszPixelShaderName, const std::shared_ptr<PixelShader>& pixelShader)
+	HRESULT Renderer::AddPixelShader(_In_ PCWSTR pszPixelShaderName, _In_ const std::shared_ptr<PixelShader>& pixelShader)
 	{
-		if (m_pixelShaders.contains(pszPixelShaderName))
-		{
-			return E_FAIL;
-		}
-		else
-		{
-			m_pixelShaders.insert(std::make_pair(pszPixelShaderName, pixelShader));
+		if (m_pixelShaders.count(pszPixelShaderName) > 0) return E_FAIL;
+		m_pixelShaders.insert({ pszPixelShaderName, pixelShader });
 
-			return S_OK;
-		}
+		return S_OK;
 	}
 
 
@@ -456,11 +431,7 @@ namespace library
 	  TODO: Renderer::HandleInput definition (remove the comment)
 	--------------------------------------------------------------------*/
 
-	void Renderer::HandleInput(
-		_In_ const DirectionsInput& directions,
-		_In_ const MouseRelativeMovement& mouseRelativeMovement,
-		_In_ FLOAT deltaTime
-	)
+	void Renderer::HandleInput(_In_ const DirectionsInput& directions, _In_ const MouseRelativeMovement& mouseRelativeMovement, _In_ FLOAT deltaTime)
 	{
 		m_camera.HandleInput(
 			directions,
@@ -469,10 +440,6 @@ namespace library
 		);
 	}
 
-
-
-
-
 	/*M+M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M
 	  Method:   Renderer::Update
 	  Summary:  Update the renderables each frame
@@ -480,13 +447,19 @@ namespace library
 				  Time difference of a frame
 	M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M-M*/
 
-	void Renderer::Update(FLOAT deltaTime)
+	void Renderer::Update(_In_ FLOAT deltaTime)
 	{
-		std::unordered_map<std::wstring, std::shared_ptr<Renderable>>::iterator it;
-		for (it = m_renderables.begin(); it != m_renderables.end(); it++)
+		for (auto& renderable : m_renderables)
 		{
-			it->second->Update(deltaTime);
+			renderable.second->Update(deltaTime);
 		}
+
+		for (auto& light : m_aPointLights)
+		{
+			light->Update(deltaTime);
+		}
+
+		m_camera.Update(deltaTime);
 	}
 
 	/*M+M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M
@@ -498,8 +471,9 @@ namespace library
 	void Renderer::Render()
 	{
 
-		// Just clear the backbuffer
-		m_immediateContext->ClearRenderTargetView(m_renderTargetView.Get(), Colors::MidnightBlue);
+		// Clear the backbuffer
+		const float ClearColor[4] = { 0.0f, 0.125f, 0.6f, 1.0f }; // RGBA
+		m_immediateContext->ClearRenderTargetView(m_renderTargetView.Get(), ClearColor);
 
 		// Clear depth stencil view
 		m_immediateContext->ClearDepthStencilView(
@@ -529,11 +503,11 @@ namespace library
 		bdLight.MiscFlags = 0;
 		bdLight.StructureByteStride = 0;
 
-		if (FAILED(m_d3dDevice->CreateBuffer(&bdLight , nullptr, m_cbLights.GetAddressOf())))
+		if (FAILED(m_d3dDevice->CreateBuffer(&bdLight, nullptr, m_cbLights.GetAddressOf())))
 		{
 		}
 
-		CBLights cbLights ;
+		CBLights cbLights;
 		for (int i = 0; i < NUM_LIGHTS; i++)
 		{
 			cbLights.LightPositions[i] = m_aPointLights[i]->GetPosition();
@@ -657,7 +631,7 @@ namespace library
 				1,
 				itRender->second->GetSamplerState().GetAddressOf()
 			);
-			
+
 
 			// Calling Draw tells Direct3D to start sending commands to the graphics device.
 			m_immediateContext->DrawIndexed(

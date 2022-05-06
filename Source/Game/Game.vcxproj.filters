@@ -48,11 +48,11 @@
     <ClCompile Include="Cube\Cube.cpp">
       <Filter>Source Files\Cube</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\..\..\GameGraphicsProgrammingStarterPack-main\Lab06\Game\Light\RotatingPointLight.cpp">
-      <Filter>Source Files\Light</Filter>
-    </ClCompile>
     <ClCompile Include="Cube\RotatingCube.cpp">
       <Filter>Source Files\Cube</Filter>
+    </ClCompile>
+    <ClCompile Include="Light\RotatingPointLight.cpp">
+      <Filter>Source Files\Light</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

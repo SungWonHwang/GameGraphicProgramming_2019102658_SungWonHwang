@@ -8,58 +8,54 @@
 //--------------------------------------------------------------------------------------
 // Global Variables
 //--------------------------------------------------------------------------------------
+Texture2D txDiffuse : register( t0 );
+SamplerState samLinear : register( s0 );
 
-Texture2D txDiffuse : register(t0);
-SamplerState samLinear : register(s0);
-
+//--------------------------------------------------------------------------------------
+// Constant Buffer Variables
+//--------------------------------------------------------------------------------------
 /*C+C+++C+++C+++C+++C+++C+++C+++C+++C+++C+++C+++C+++C+++C+++C+++C+++C
   Cbuffer:  cbChangeOnCameraMovement
 
   Summary:  Constant buffer used for view transformation
 C---C---C---C---C---C---C---C---C---C---C---C---C---C---C---C---C-C*/
-
-cbuffer cbChangeOnCameraMovement : register(b0)
+cbuffer cbChangeOnCameraMovement : register( b0 )
 {
-    matrix View;
-}
+	matrix View;
+	float4 CameraPosition;
+};
 
 /*C+C+++C+++C+++C+++C+++C+++C+++C+++C+++C+++C+++C+++C+++C+++C+++C+++C
   Cbuffer:  cbChangeOnResize
 
   Summary:  Constant buffer used for projection transformation
 C---C---C---C---C---C---C---C---C---C---C---C---C---C---C---C---C-C*/
-
-cbuffer cbChangeOnResize : register(b1)
+cbuffer cbChangeOnResize : register( b1 )
 {
-    matrix Projection;
-}
+	matrix Projection;
+};
 
 /*C+C+++C+++C+++C+++C+++C+++C+++C+++C+++C+++C+++C+++C+++C+++C+++C+++C
   Cbuffer:  cbChangesEveryFrame
 
   Summary:  Constant buffer used for world transformation
 C---C---C---C---C---C---C---C---C---C---C---C---C---C---C---C---C-C*/
-
-cbuffer cbChangesEveryFrame : register(b2)
+cbuffer cbChangesEveryFrame : register( b2 )
 {
-    matrix World;
-    //float4 vMeshColor;
-}
-
+	matrix World;
+};
 
 //--------------------------------------------------------------------------------------
 /*C+C+++C+++C+++C+++C+++C+++C+++C+++C+++C+++C+++C+++C+++C+++C+++C+++C
   Struct:   VS_INPUT
 
-  Summary:  Used as the input to the vertex shader 
+  Summary:  Used as the input to the vertex shader
 C---C---C---C---C---C---C---C---C---C---C---C---C---C---C---C---C-C*/
-
 struct VS_INPUT
 {
-    float4 Position : POSITION;
-    float2 TexCoord : TEXCOORD0;
+	float4 Pos : POSITION;
+    float2 Tex : TEXCOORD;
 };
-
 
 /*C+C+++C+++C+++C+++C+++C+++C+++C+++C+++C+++C+++C+++C+++C+++C+++C+++C
   Struct:   PS_INPUT
@@ -67,44 +63,31 @@ struct VS_INPUT
   Summary:  Used as the input to the pixel shader, output of the 
             vertex shader
 C---C---C---C---C---C---C---C---C---C---C---C---C---C---C---C---C-C*/
-
 struct PS_INPUT
 {
-    float4 Position : SV_POSITION;
-    float2 TexCoord : TEXCOORD0;
+	float4 Pos : SV_POSITION;
+    float2 Tex : TEXCOORD;
 };
 
 //--------------------------------------------------------------------------------------
 // Vertex Shader
 //--------------------------------------------------------------------------------------
-
 PS_INPUT VS(VS_INPUT input)
 {
-    PS_INPUT output = (PS_INPUT)0;
-    output.Position = mul(input.Position, World);
-    output.Position = mul(output.Position, View);
-    output.Position = mul(output.Position, Projection);
-    output.TexCoord = input.TexCoord;
+	PS_INPUT output = (PS_INPUT)0;
+	output.Pos = input.Pos;
+	output.Pos = mul(output.Pos, World);
+	output.Pos = mul(output.Pos, View);
+	output.Pos = mul(output.Pos, Projection);
+	output.Tex = input.Tex;
 
-    return output;
+	return output;
 }
 
 //--------------------------------------------------------------------------------------
 // Pixel Shader
 //--------------------------------------------------------------------------------------
-/*--------------------------------------------------------------------
-  TODO: Pixel Shader function PS definition (remove the comment)
---------------------------------------------------------------------*/
-
 float4 PS(PS_INPUT input) : SV_Target
 {
-    float4 albedo = txDiffuse.Sample(
-    samLinear,
-    input.TexCoord
-    );
-
-    return albedo.rgba;
-    //return albedo.rgba * vMeshColor;
-
+	return txDiffuse.Sample(samLinear, input.Tex);
 }
-

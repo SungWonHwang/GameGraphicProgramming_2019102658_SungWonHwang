@@ -100,13 +100,13 @@
     </FxCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\..\..\..\GameGraphicsProgrammingStarterPack-main\Lab06\Game\Light\RotatingPointLight.cpp" />
     <ClCompile Include="Cube\AdditionalCube.cpp" />
     <ClCompile Include="Cube\BaseCube.cpp" />
     <ClCompile Include="Cube\Cube.cpp" />
     <ClCompile Include="Cube\RotatingCube.cpp" />
     <ClCompile Include="Cube\YourCube.cpp" />
     <ClCompile Include="Cube\YourCube2.cpp" />
+    <ClCompile Include="Light\RotatingPointLight.cpp" />
     <ClCompile Include="Main.cpp" />
   </ItemGroup>
   <ItemGroup>
