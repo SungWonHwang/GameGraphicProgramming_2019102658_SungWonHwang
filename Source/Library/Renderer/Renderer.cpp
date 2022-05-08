@@ -51,7 +51,7 @@ namespace library
 				  m_vertexLayout, m_pixelShader, m_vertexBuffer].
 
 				  **********change**********
-				  *
+				  
 	 Modifies: [m_d3dDevice, m_featureLevel, m_immediateContext,
 				 m_d3dDevice1, m_immediateContext1, m_swapChain1,
 				 m_swapChain, m_renderTargetView, m_cbChangeOnResize,
@@ -508,10 +508,10 @@ namespace library
 		}
 
 		CBLights cbLights;
-		for (int i = 0; i < NUM_LIGHTS; i++)
+		for (int j = 0; j < NUM_LIGHTS; j++)
 		{
-			cbLights.LightPositions[i] = m_aPointLights[i]->GetPosition();
-			cbLights.LightColors[i] = m_aPointLights[i]->GetColor();
+			cbLights.LightPositions[j] = m_aPointLights[j]->GetPosition();
+			cbLights.LightColors[j] = m_aPointLights[j]->GetColor();
 			//MessageBox(nullptr, L"Fail", L"gg", NULL);
 		}
 		m_immediateContext->UpdateSubresource(m_cbLights.Get(), 0, nullptr, &cbLights, 0u, 0u);
@@ -620,6 +620,9 @@ namespace library
 				m_cbLights.GetAddressOf()
 			);
 
+			/*
+			//AboutTexture
+
 			m_immediateContext->PSSetShaderResources(
 				0,
 				1,
@@ -631,14 +634,28 @@ namespace library
 				1,
 				itRender->second->GetSamplerState().GetAddressOf()
 			);
+			*/
 
-
-			// Calling Draw tells Direct3D to start sending commands to the graphics device.
-			m_immediateContext->DrawIndexed(
-				itRender->second->GetNumIndices(),
-				0,
-				0
-			);
+			if (itRender->second->HasTexture())
+			{
+				for (UINT i = 0u; i < itRender->second->GetNumMeshes(); ++i)
+				{
+					const UINT materialIndex = itRender->second->GetMesh(i).uMaterialIndex;
+					if (itRender->second->GetMaterial(materialIndex).pDiffuse)
+					{
+						m_immediateContext->PSSetShaderResources(0u, 1u, itRender->second->GetMaterial(materialIndex).pDiffuse->GetTextureResourceView().GetAddressOf());
+						m_immediateContext->PSSetSamplers(0u, 1u, itRender->second->GetMaterial(materialIndex).pDiffuse->GetSamplerState().GetAddressOf());
+					}
+					m_immediateContext->DrawIndexed(
+						itRender->second->GetMesh(i).uNumIndices,
+						itRender->second->GetMesh(i).uBaseIndex,
+						itRender->second->GetMesh(i).uBaseVertex);
+				}
+			}
+			else
+			{
+				m_immediateContext->DrawIndexed(itRender->second->GetNumIndices(), 0u, 0);
+			}
 		}
 
 
@@ -694,7 +711,6 @@ namespace library
 	{
 		if (!m_renderables.contains(pszRenderableName))
 		{
-
 			return E_FAIL;
 		}
 		else

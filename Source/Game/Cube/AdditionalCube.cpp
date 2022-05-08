@@ -1,7 +1,7 @@
 #include "Cube/AdditionalCube.h"
 
 
-
+/*
 AdditionalCube::AdditionalCube(const std::filesystem::path& textureFilePath) : BaseCube(textureFilePath)
 {}
 
@@ -14,3 +14,4 @@ void AdditionalCube::Update(_In_ FLOAT t)
 
     m_world = mScale * mSpin * mTranslate * mOrbit;
 }
+*/

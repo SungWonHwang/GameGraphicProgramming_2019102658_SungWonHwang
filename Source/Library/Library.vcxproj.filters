@@ -55,6 +55,15 @@
     <Filter Include="Source Files\Light">
       <UniqueIdentifier>{f73e15ce-3cf1-4ca3-8256-caa2ba3221df}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\Model">
+      <UniqueIdentifier>{31999255-7454-4b2d-8585-89e569aa392f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Model">
+      <UniqueIdentifier>{56269f68-5472-4eac-b2ca-43327eb5c306}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\assimp">
+      <UniqueIdentifier>{b402a12d-cc65-4d37-9cd4-d89d47079439}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Common.h">
@@ -99,6 +108,30 @@
     <ClInclude Include="Light\PointLight.h">
       <Filter>Header Files\Light</Filter>
     </ClInclude>
+    <ClInclude Include="Model\Model.h">
+      <Filter>Header Files\Model</Filter>
+    </ClInclude>
+    <ClInclude Include="Texture\Material.h">
+      <Filter>Header Files\Texture</Filter>
+    </ClInclude>
+    <ClInclude Include="Texture\Texture.h">
+      <Filter>Header Files\Texture</Filter>
+    </ClInclude>
+    <ClInclude Include="Texture\WICTextureLoader.h">
+      <Filter>Header Files\Texture</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\External\Assimp\Include\assimp\config.h">
+      <Filter>Header Files\assimp</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\External\Assimp\Include\assimp\scene.h">
+      <Filter>Header Files\assimp</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\External\Assimp\Include\assimp\postprocess.h">
+      <Filter>Header Files\assimp</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\External\Assimp\Include\assimp\Importer.hpp">
+      <Filter>Header Files\assimp</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Game\Game.cpp">
@@ -131,23 +164,27 @@
     <ClCompile Include="Light\PointLight.cpp">
       <Filter>Source Files\Light</Filter>
     </ClCompile>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Shader\Lab03.fxh">
-      <Filter>Source Files\Shaders</Filter>
-    </None>
-  </ItemGroup>
-  <ItemGroup>
-    <FxCompile Include="Shader\Lab03_PS.hlsl">
-      <Filter>Source Files\Shaders</Filter>
-    </FxCompile>
-    <FxCompile Include="Shader\Lab03_VS.hlsl">
-      <Filter>Source Files\Shaders</Filter>
-    </FxCompile>
+    <ClCompile Include="Model\Model.cpp">
+      <Filter>Source Files\Model</Filter>
+    </ClCompile>
+    <ClCompile Include="Texture\Material.cpp">
+      <Filter>Source Files\Texture</Filter>
+    </ClCompile>
+    <ClCompile Include="Texture\Texture.cpp">
+      <Filter>Source Files\Texture</Filter>
+    </ClCompile>
+    <ClCompile Include="Texture\WICTextureLoader.cpp">
+      <Filter>Source Files\Texture</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Resource.rc">
       <Filter>Header Files\Resource Files</Filter>
     </ResourceCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="directx.ico">
+      <Filter>Header Files\Resource Files</Filter>
+    </Image>
   </ItemGroup>
 </Project>
