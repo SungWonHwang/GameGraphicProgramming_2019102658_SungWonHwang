@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------
-// File: PhongShaders.fx
+// File: VoxelShaders.fx
 //
 // Copyright (c) Kyung Hee University.
 //--------------------------------------------------------------------------------------
@@ -17,7 +17,6 @@ SamplerState samLinear : register(s0);
 //--------------------------------------------------------------------------------------
 /*C+C+++C+++C+++C+++C+++C+++C+++C+++C+++C+++C+++C+++C+++C+++C+++C+++C
   Cbuffer:  cbChangeOnCameraMovement
-
   Summary:  Constant buffer used for view transformation and shading
 C---C---C---C---C---C---C---C---C---C---C---C---C---C---C---C---C-C*/
 cbuffer cbChangeOnCameraMovement : register(b0)
@@ -28,7 +27,6 @@ cbuffer cbChangeOnCameraMovement : register(b0)
 
 /*C+C+++C+++C+++C+++C+++C+++C+++C+++C+++C+++C+++C+++C+++C+++C+++C+++C
   Cbuffer:  cbChangeOnResize
-
   Summary:  Constant buffer used for projection transformation
 C---C---C---C---C---C---C---C---C---C---C---C---C---C---C---C---C-C*/
 cbuffer cbChangeOnResize : register(b1)
@@ -38,8 +36,8 @@ cbuffer cbChangeOnResize : register(b1)
 
 /*C+C+++C+++C+++C+++C+++C+++C+++C+++C+++C+++C+++C+++C+++C+++C+++C+++C
   Cbuffer:  cbChangesEveryFrame
-
-  Summary:  Constant buffer used for world transformation
+  Summary:  Constant buffer used for world transformation, and the 
+            color of the voxel
 C---C---C---C---C---C---C---C---C---C---C---C---C---C---C---C---C-C*/
 cbuffer cbChangesEveryFrame : register(b2)
 {
@@ -49,7 +47,6 @@ cbuffer cbChangesEveryFrame : register(b2)
 
 /*C+C+++C+++C+++C+++C+++C+++C+++C+++C+++C+++C+++C+++C+++C+++C+++C+++C
   Cbuffer:  cbLights
-
   Summary:  Constant buffer used for shading
 C---C---C---C---C---C---C---C---C---C---C---C---C---C---C---C---C-C*/
 cbuffer cbLights : register(b3)
@@ -60,97 +57,72 @@ cbuffer cbLights : register(b3)
 
 //--------------------------------------------------------------------------------------
 /*C+C+++C+++C+++C+++C+++C+++C+++C+++C+++C+++C+++C+++C+++C+++C+++C+++C
-  Struct:   VS_PHONG_INPUT
-
-  Summary:  Used as the input to the vertex shader
+  Struct:   VS_INPUT
+  Summary:  Used as the input to the vertex shader, 
+            instance data included
 C---C---C---C---C---C---C---C---C---C---C---C---C---C---C---C---C-C*/
-struct VS_PHONG_INPUT
+struct VS_INPUT
 {
     float4 Position : POSITION;
     float2 TexCoord : TEXCOORD0;
     float3 Normal : NORMAL;
+    row_major matrix Transform : INSTANCE_TRANSFORM;
 };
 
 /*C+C+++C+++C+++C+++C+++C+++C+++C+++C+++C+++C+++C+++C+++C+++C+++C+++C
-  Struct:   PS_PHONG_INPUT
-
+  Struct:   PS_INPUT
   Summary:  Used as the input to the pixel shader, output of the 
             vertex shader
 C---C---C---C---C---C---C---C---C---C---C---C---C---C---C---C---C-C*/
-struct PS_PHONG_INPUT
-{
-    float4 Pos : SV_POSITION;
-    float2 Tex : TEXCOORD0;
-    float3 Norm : NORMAL;
-    float4 WorldPos : WORLDPOS;
-};
-
-/*C+C+++C+++C+++C+++C+++C+++C+++C+++C+++C+++C+++C+++C+++C+++C+++C+++C
-  Struct:   PS_LIGHT_CUBE_INPUT
-
-  Summary:  Used as the input to the pixel shader, output of the 
-            vertex shader
-C---C---C---C---C---C---C---C---C---C---C---C---C---C---C---C---C-C*/
-struct PS_LIGHT_CUBE_INPUT
+struct PS_INPUT
 {
     float4 Position : SV_POSITION;
+    float2 TexCoord : TEXCOORD0;
+    float3 Normal : NORMAL;
+    float3 WorldPosition : WORLDPOS;
 };
 
 //--------------------------------------------------------------------------------------
 // Vertex Shader
 //--------------------------------------------------------------------------------------
-PS_PHONG_INPUT VSPhong(VS_PHONG_INPUT input)
+PS_INPUT VSVoxel(VS_INPUT input)
 {
-    PS_PHONG_INPUT output = (PS_PHONG_INPUT) 0;
-    output.Pos = input.Position;
-    output.Pos = mul(output.Pos, World);
-    output.Pos = mul(output.Pos, View);
-    output.Pos = mul(output.Pos, Projection);
-    output.Tex = input.TexCoord;
-    output.Norm = normalize(mul(float4(input.Normal, 1), World).xyz);
-    output.WorldPos = mul(input.Position, World);
-
-    return output;
-}
-
-PS_LIGHT_CUBE_INPUT VSLightCube(VS_PHONG_INPUT input)
-{
-    PS_LIGHT_CUBE_INPUT output = (PS_LIGHT_CUBE_INPUT) 0;
-    output.Position = input.Position;
+    PS_INPUT output = (PS_INPUT) 0;
+    output.Position = mul(input.Position, input.Transform);
     output.Position = mul(output.Position, World);
+    output.WorldPosition = output.Position;
     output.Position = mul(output.Position, View);
     output.Position = mul(output.Position, Projection);
-
+    
+    output.Normal = mul(float4(input.Normal, 0.0f), input.Transform).xyz;
+    output.Normal = mul(float4(output.Normal, 0.0f), World).xyz;
+    
     return output;
 }
-
 
 //--------------------------------------------------------------------------------------
 // Pixel Shader
 //--------------------------------------------------------------------------------------
-float4 PSPhong(PS_PHONG_INPUT input) : SV_Target
+float4 PSVoxel(PS_INPUT input) : SV_TARGET
 {
-    float3 toViewDir = normalize((CameraPosition - input.WorldPos).xyz);
-    float3 normal = normalize(input.Norm);
-	
-    float3 ambient = float3(0.1f, 0.1f, 0.1f);
+    float3 ambient = float3(0, 0, 0);
+    float3 lightDirection = float3(0, 0, 0);
     float3 diffuse = float3(0, 0, 0);
-    float3 specular = float3(0, 0, 0);
-		
+    
+    float3 normal = normalize(input.Normal);
+    
+    
     for (uint i = 0; i < NUM_LIGHTS; ++i)
     {
-        float3 fromLightDir = normalize((input.WorldPos - LightPositions[i]).xyz);
-	
-        diffuse += max(dot(normal, -fromLightDir), 0) * LightColors[i].xyz;
-		
-        float3 refDir = reflect(fromLightDir, normal);
-        specular += pow(max(dot(refDir, toViewDir), 0), 20) * LightColors[i].xyz;
+        ambient += float4(float3(0.1f, 0.1f, 0.1f) * LightColors[i].xyz, 1.0f);
     }
 
-    return float4(saturate(ambient + diffuse + specular), 1) * txDiffuse.Sample(samLinear, input.Tex);
-}
-
-float4 PSLightCube(PS_LIGHT_CUBE_INPUT input) : SV_Target
-{
-    return OutputColor;
+    for (uint i = 0; i < NUM_LIGHTS; ++i)
+    {
+        lightDirection = normalize(LightPositions[i].xyz - input.WorldPosition);
+        diffuse += saturate(dot(normal, lightDirection)) * LightColors[i];
+    }
+    
+    //return float4(input.Color, 1.0f);
+    return float4(ambient + diffuse, 1) * OutputColor;
 }
