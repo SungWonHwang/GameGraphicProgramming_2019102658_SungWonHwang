@@ -697,7 +697,7 @@ namespace library
 			*/
 
 			
-			/*
+			
 			if (itRender->second->HasTexture())
 			{
 				for (UINT i = 0u; i < itRender->second->GetNumMeshes(); ++i)
@@ -718,7 +718,7 @@ namespace library
 			{
 				m_immediateContext->DrawIndexed(itRender->second->GetNumIndices(), 0u, 0);
 			}
-			*/
+			
 			
 			
 		}
