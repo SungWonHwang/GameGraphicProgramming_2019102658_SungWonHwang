@@ -13,6 +13,7 @@ namespace library
 				 m_depthStencilView, m_cbChangeOnResize, m_camera,
 				 m_projection, m_renderables, m_vertexShaders,
 				 m_pixelShaders].
+	  initialize check
 
 	M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M-M*/
 
