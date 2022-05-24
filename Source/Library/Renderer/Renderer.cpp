@@ -591,7 +591,7 @@ namespace library
 		//********************************MODEL****************
 
 		for (auto it : m_models) {
-			it.second->Update(100 * deltaTime);
+			it.second->Update(deltaTime);
 		}
 
 		m_camera.Update(deltaTime);
