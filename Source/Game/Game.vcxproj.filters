@@ -73,6 +73,9 @@
     <None Include="Shaders\VoxelShaders.fxh">
       <Filter>Source Files\Shaders</Filter>
     </None>
+    <None Include="Shaders\SkinningShaders.fxh">
+      <Filter>Source Files\Shaders</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Cube\BaseCube.h">
@@ -90,11 +93,11 @@
     <ClInclude Include="Cube\Cube.h">
       <Filter>Header Files\Cube</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\..\GameGraphicsProgrammingStarterPack-main\Lab06\Game\Light\RotatingPointLight.h">
-      <Filter>Header Files\Light</Filter>
-    </ClInclude>
     <ClInclude Include="Cube\RotatingCube.h">
       <Filter>Header Files\Cube</Filter>
+    </ClInclude>
+    <ClInclude Include="Light\RotatingPointLight.h">
+      <Filter>Header Files\Light</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

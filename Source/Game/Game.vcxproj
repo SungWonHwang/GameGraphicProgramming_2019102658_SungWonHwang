@@ -120,16 +120,17 @@
   <ItemGroup>
     <None Include="Shaders\PhongShaders.fxh" />
     <None Include="Shaders\Shaders.fxh" />
+    <None Include="Shaders\SkinningShaders.fxh" />
     <None Include="Shaders\VoxelShaders.fxh" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\..\..\..\GameGraphicsProgrammingStarterPack-main\Lab06\Game\Light\RotatingPointLight.h" />
     <ClInclude Include="Cube\AdditionalCube.h" />
     <ClInclude Include="Cube\BaseCube.h" />
     <ClInclude Include="Cube\Cube.h" />
     <ClInclude Include="Cube\RotatingCube.h" />
     <ClInclude Include="Cube\YourCube.h" />
     <ClInclude Include="Cube\YourCube2.h" />
+    <ClInclude Include="Light\RotatingPointLight.h" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="seafloor.dds" />
