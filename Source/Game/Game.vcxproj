@@ -133,6 +133,9 @@
     <ClInclude Include="Light\RotatingPointLight.h" />
   </ItemGroup>
   <ItemGroup>
+    <Image Include="Content\Common\InvalidTexture.png" />
+    <Image Include="Content\Cube\diffuse.png" />
+    <Image Include="Content\Cube\normal.png" />
     <Image Include="seafloor.dds" />
     <Image Include="squaretile.dds" />
   </ItemGroup>

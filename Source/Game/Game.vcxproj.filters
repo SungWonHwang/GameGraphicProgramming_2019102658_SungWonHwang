@@ -107,5 +107,14 @@
     <Image Include="squaretile.dds">
       <Filter>Resource Files</Filter>
     </Image>
+    <Image Include="Content\Common\InvalidTexture.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="Content\Cube\diffuse.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="Content\Cube\normal.png">
+      <Filter>Resource Files</Filter>
+    </Image>
   </ItemGroup>
 </Project>

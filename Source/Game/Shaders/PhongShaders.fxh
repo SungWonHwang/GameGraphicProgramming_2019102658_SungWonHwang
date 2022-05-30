@@ -9,8 +9,10 @@
 //--------------------------------------------------------------------------------------
 // Global Variables
 //--------------------------------------------------------------------------------------
-Texture2D txDiffuse : register(t0);
-SamplerState samLinear : register(s0);
+
+Texture2D txDiffuse[2] : register(t0);
+SamplerState samLinear[2] : register(s0);
+
 
 //--------------------------------------------------------------------------------------
 // Constant Buffer Variables
@@ -45,6 +47,7 @@ cbuffer cbChangesEveryFrame : register(b2)
 {
     matrix World;
     float4 OutputColor;
+    bool HasNormalMap;
 };
 
 /*C+C+++C+++C+++C+++C+++C+++C+++C+++C+++C+++C+++C+++C+++C+++C+++C+++C
@@ -69,6 +72,10 @@ struct VS_PHONG_INPUT
     float4 Position : POSITION;
     float2 TexCoord : TEXCOORD0;
     float3 Normal : NORMAL;
+    float3 Tangent : TANGENT;
+    float3 Bitangent : BITANGENT;
+    row_major matrix mTransform : INSTANCE_TRANSFORM;
+
 };
 
 /*C+C+++C+++C+++C+++C+++C+++C+++C+++C+++C+++C+++C+++C+++C+++C+++C+++C
@@ -83,6 +90,9 @@ struct PS_PHONG_INPUT
     float2 Tex : TEXCOORD0;
     float3 Norm : NORMAL;
     float4 WorldPos : WORLDPOS;
+    float3 Tangent : TANGENT;
+    float3 Bitangent : BITANGENT;
+
 };
 
 /*C+C+++C+++C+++C+++C+++C+++C+++C+++C+++C+++C+++C+++C+++C+++C+++C+++C
@@ -109,8 +119,15 @@ PS_PHONG_INPUT VSPhong(VS_PHONG_INPUT input)
     output.Tex = input.TexCoord;
     output.Norm = normalize(mul(float4(input.Normal, 1), World).xyz);
     output.WorldPos = mul(input.Position, World);
+    
+    if (HasNormalMap)
+    {
+        output.Tangent = normalize(mul(float4(input.Tangent, 0.0f), World).xyz);
+        output.Bitangent = normalize(mul(float4(input.Bitangent, 0.0f), World).xyz);
 
-    return output;
+    }
+
+        return output;
 }
 
 PS_LIGHT_CUBE_INPUT VSLightCube(VS_PHONG_INPUT input)
@@ -146,10 +163,26 @@ float4 PSPhong(PS_PHONG_INPUT input) : SV_Target
         float3 refDir = reflect(fromLightDir, normal);
         specular += pow(max(dot(refDir, toViewDir), 0), 20) * LightColors[i].xyz;
     }
+    
+    if (HasNormalMap)
+    { // Sample the pixel in the normal map.
+        float4 bumpMap = txDiffuse[1].Sample(samLinear[1], input.Tex);
+        // Expand the range of the normal value from (0, +1) to (-1, +1).
+        bumpMap = (bumpMap * 2.0f) - 1.0f;
+        // Calculate the normal from the data in the normal map.        
+        float3 bumpNormal = (bumpMap.x * input.Tangent) + (bumpMap.y * input.Bitangent) + (bumpMap.z * normal);
+        // Normalize the resulting bump normal and replace existing normal        
+        normal = normalize(bumpNormal);
+    }
 
-    return float4(saturate(ambient + diffuse + specular), 1) * txDiffuse.Sample(samLinear, input.Tex);
+    //이부분 좀 고쳐야하는데..ㄱㄷㄱㄷ
+    //return float4(saturate(ambient + diffuse + specular), 1) * txDiffuse.Sample(samLinear, input.Tex);
+    return float4(saturate(ambient + diffuse + specular), 1) * txDiffuse[0].Sample(samLinear[0], input.Tex);
 }
 
+    
+    
+    
 float4 PSLightCube(PS_LIGHT_CUBE_INPUT input) : SV_Target
 {
     return OutputColor;

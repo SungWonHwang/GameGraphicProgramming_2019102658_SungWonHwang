@@ -7,12 +7,11 @@
 
   Classes: Model
 
-  2022 Kyung Hee University
+  ?2022 Kyung Hee University
 ===================================================================+*/
 #pragma once
 
 #include "Common.h"
-
 #include "Renderer/DataTypes.h"
 #include "Renderer/Renderable.h"
 #include "Shader/PixelShader.h"
@@ -22,7 +21,6 @@
 struct aiScene;
 struct aiMesh;
 struct aiMaterial;
-
 struct aiAnimation;
 struct aiBone;
 struct aiNode;
@@ -35,7 +33,6 @@ namespace Assimp
 
 namespace library
 {
-
     /*C+C+++C+++C+++C+++C+++C+++C+++C+++C+++C+++C+++C+++C+++C+++C+++C+++C
       Class:    Model
 
@@ -98,7 +95,6 @@ namespace library
             {
                 ZeroMemory(aBoneIds, ARRAYSIZE(aBoneIds) * sizeof(aBoneIds[0]));
                 ZeroMemory(aWeights, ARRAYSIZE(aWeights) * sizeof(aWeights[0]));
-
             }
 
             void AddBoneData(_In_ UINT uBoneId, _In_ FLOAT weight)
@@ -107,11 +103,10 @@ namespace library
 
                 aBoneIds[uNumBones] = uBoneId;
                 aWeights[uNumBones] = weight;
-                
+
                 static CHAR szDebugMessage[256];
                 sprintf_s(szDebugMessage, "\t\t\tBone %d, weight: %f, index %u\n", uBoneId, weight, uNumBones);
                 OutputDebugStringA(szDebugMessage);
-                
 
                 ++uNumBones;
             }
@@ -169,6 +164,13 @@ namespace library
             _In_ UINT uIndex
         );
         HRESULT loadSpecularTexture(
+            _In_ ID3D11Device* pDevice,
+            _In_ ID3D11DeviceContext* pImmediateContext,
+            _In_ const std::filesystem::path& parentDirectory,
+            _In_ const aiMaterial* pMaterial,
+            _In_ UINT uIndex
+        );
+        HRESULT loadNormalTexture(
             _In_ ID3D11Device* pDevice,
             _In_ ID3D11DeviceContext* pImmediateContext,
             _In_ const std::filesystem::path& parentDirectory,
