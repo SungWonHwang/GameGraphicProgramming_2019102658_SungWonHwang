@@ -32,8 +32,8 @@ namespace library
                   Color of the voxel
     M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M-M*/
     /*--------------------------------------------------------------------
-      TODO: Voxel::Voxel definition (remove the comment)
-    --------------------------------------------------------------------*/
+     TODO: Voxel::Voxel definition (remove the comment)
+   --------------------------------------------------------------------*/
     Voxel::Voxel(_In_ std::vector<InstanceData>&& aInstanceData, _In_ const XMFLOAT4& outputColor)
         : InstancedRenderable(std::move(aInstanceData), outputColor)
     {}

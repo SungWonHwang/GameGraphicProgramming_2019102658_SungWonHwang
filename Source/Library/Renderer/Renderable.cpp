@@ -61,8 +61,6 @@ namespace library
 				 m_pixelShader, m_outputColor, m_world, m_bHasNormalMap
 				 m_aNormalData].
 
-
-
 	M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M-M*/
 	Renderable::Renderable(_In_ const XMFLOAT4& outputColor) :
 		m_vertexBuffer(),
@@ -197,7 +195,7 @@ namespace library
 			};
 		*/
 
-		if (HasTexture() && m_aNormalData.empty())
+		if (m_aNormalData.empty())
 		{
 			calculateNormalMapVectors();
 		}

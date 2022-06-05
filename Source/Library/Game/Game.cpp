@@ -36,7 +36,7 @@ namespace library {
 	HRESULT Game::Initialize(_In_ HINSTANCE hInstance, _In_ INT nCmdShow) {
 		HRESULT hr;
 
-		hr = m_mainWindow->Initialize(hInstance, nCmdShow, L"Game Graphics Programming Lab 04: 3D Spaces and Transformations");
+		hr = m_mainWindow->Initialize(hInstance, nCmdShow, m_pszGameName);
 		if (FAILED(hr)) return hr;
 
 		hr = m_renderer->Initialize(m_mainWindow->GetWindow());

@@ -1,4 +1,4 @@
-#include "Model/Model.h"
+﻿#include "Model/Model.h"
 
 #include "assimp/Importer.hpp"	// C++ importer interface
 #include "assimp/scene.h"		// output data structure
@@ -8,7 +8,9 @@ namespace library
 {
     /*M+M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M
       Method:   ConvertMatrix
+
       Summary:  Convert aiMatrix4x4 to XMMATRIX
+
       Returns:  XMMATRIX
     M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M-M*/
     XMMATRIX ConvertMatrix(_In_ const aiMatrix4x4& matrix)
@@ -34,35 +36,35 @@ namespace library
     }
 
     /*M+M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M
-	  Method:   ConvertVector3dToFloat3
+      Method:   ConvertVector3dToFloat3
 
-	  Summary:  Conver aiVector3D to XMFLOAT3
+      Summary:  Conver aiVector3D to XMFLOAT3
 
-	  Returns:  XMFLOAT3
-	M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M-M*/
+      Returns:  XMFLOAT3
+    M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M-M*/
 
-	XMFLOAT3 ConvertVector3dToFloat3(_In_ const aiVector3D& vector)
-	{
-		return XMFLOAT3(vector.x, vector.y, vector.z);
-	}
+    XMFLOAT3 ConvertVector3dToFloat3(_In_ const aiVector3D& vector)
+    {
+        return XMFLOAT3(vector.x, vector.y, vector.z);
+    }
 
-	/*M+M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M
-	  Method:   ConvertQuaternionToVector
+    /*M+M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M
+      Method:   ConvertQuaternionToVector
 
-	  Summary:  Convert aiQuaternion to XMVECTOR
+      Summary:  Convert aiQuaternion to XMVECTOR
 
-	  Returns:  XMVECTOR
-	M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M-M*/
+      Returns:  XMVECTOR
+    M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M-M*/
 
-	XMVECTOR ConvertQuaternionToVector(_In_ const aiQuaternion& quaternion)
-	{
-		XMFLOAT4 float4 = XMFLOAT4(quaternion.x, quaternion.y, quaternion.z, quaternion.w);
-		return XMLoadFloat4(&float4);
-	}
+    XMVECTOR ConvertQuaternionToVector(_In_ const aiQuaternion& quaternion)
+    {
+        XMFLOAT4 float4 = XMFLOAT4(quaternion.x, quaternion.y, quaternion.z, quaternion.w);
+        return XMLoadFloat4(&float4);
+    }
 
-	std::unique_ptr<Assimp::Importer> Model::sm_pImporter = std::make_unique<Assimp::Importer>();
+    std::unique_ptr<Assimp::Importer> Model::sm_pImporter = std::make_unique<Assimp::Importer>();
 
-	/*M+M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M
+    /*M+M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M
       Method:   Model::Model
 
       Summary:  Constructor
@@ -77,21 +79,21 @@ namespace library
                  m_pScene, m_timeSinceLoaded, m_globalInverseTransform].
     M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M-M*/
     Model::Model(_In_ const std::filesystem::path& filePath) :
-		Renderable(XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f)),
-		m_filePath(filePath),
-		m_animationBuffer(),
-		m_skinningConstantBuffer(),
-		m_aVertices(),
-		m_aAnimationData(),
-		m_aIndices(),
-		m_aBoneData(),
-		m_aBoneInfo(),
-		m_aTransforms(),
-		m_boneNameToIndexMap(),
-		m_pScene(),
-		m_timeSinceLoaded(),
-		m_globalInverseTransform()
-	{}
+        Renderable(XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f)),
+        m_filePath(filePath),
+        m_animationBuffer(),
+        m_skinningConstantBuffer(),
+        m_aVertices(),
+        m_aAnimationData(),
+        m_aIndices(),
+        m_aBoneData(),
+        m_aBoneInfo(),
+        m_aTransforms(),
+        m_boneNameToIndexMap(),
+        m_pScene(),
+        m_timeSinceLoaded(),
+        m_globalInverseTransform()
+    {}
 
     /*M+M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M
       Method:   Model::Initialize
@@ -212,12 +214,15 @@ namespace library
         }
     }
 
+
+
     /*M+M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M
       Method:   Model::GetAnimationBuffer
 
       Summary:  Returns the animation buffer
 
       Returns:  ComPtr<ID3D11Buffer>&
+
     M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M-M*/
     ComPtr<ID3D11Buffer>& Model::GetAnimationBuffer()
     {
@@ -230,6 +235,7 @@ namespace library
       Summary:  Returns the skinning constant buffer
 
       Returns:  ComPtr<ID3D11Buffer>&
+
     M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M-M*/
     ComPtr<ID3D11Buffer>& Model::GetSkinningConstantBuffer()
     {
@@ -242,6 +248,7 @@ namespace library
       Summary:  Returns the number of vetices
 
       Returns:  UINT
+
     M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M-M*/
     UINT Model::GetNumVertices() const
     {
@@ -254,6 +261,7 @@ namespace library
        Summary:  Returns the number of indices
 
        Returns:  UINT
+
      M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M-M*/
     UINT Model::GetNumIndices() const
     {
@@ -266,6 +274,7 @@ namespace library
        Summary:  Returns the vector containing bone transforms
 
        Returns:  std::vector<XMMATRIX>&
+
      M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M-M*/
     std::vector<XMMATRIX>& Model::GetBoneTransforms()
     {
@@ -278,6 +287,7 @@ namespace library
         Summary:  Returns the bone name to index map
 
         Returns:  std::unordered_map<std::string, UINT>&
+
      M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M-M*/
     const std::unordered_map<std::string, UINT>& Model::GetBoneNameToIndexMap() const
     {
