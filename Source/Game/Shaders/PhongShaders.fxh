@@ -4,10 +4,10 @@
 // Copyright (c) Kyung Hee University.
 //--------------------------------------------------------------------------------------
 
+
 //--------------------------------------------------------------------------------------
 // Global Variables
 //--------------------------------------------------------------------------------------
-
 Texture2D txDiffuse[2] : register(t0);
 SamplerState samLinear[2] : register(s0);
 Texture2D shadowMapTexture : register(t2);
@@ -16,7 +16,7 @@ SamplerState shadowMapSampler : register(s2);
 //--------------------------------------------------------------------------------------
 // Constant Buffer Variables
 //--------------------------------------------------------------------------------------
-#define NUM_LIGHTS (1)
+#define NUM_LIGHTS (2)
 #define NEAR_PLANE (0.01f)
 #define FAR_PLANE (1000.0f)
 
@@ -29,7 +29,7 @@ cbuffer cbChangeOnCameraMovement : register(b0)
 {
     matrix View;
     float4 CameraPosition;
-}
+};
 
 /*C+C+++C+++C+++C+++C+++C+++C+++C+++C+++C+++C+++C+++C+++C+++C+++C+++C
   Cbuffer:  cbChangeOnResize
@@ -39,34 +39,37 @@ C---C---C---C---C---C---C---C---C---C---C---C---C---C---C---C---C-C*/
 cbuffer cbChangeOnResize : register(b1)
 {
     matrix Projection;
-}
+};
 
 /*C+C+++C+++C+++C+++C+++C+++C+++C+++C+++C+++C+++C+++C+++C+++C+++C+++C
   Cbuffer:  cbChangesEveryFrame
 
   Summary:  Constant buffer used for world transformation
 C---C---C---C---C---C---C---C---C---C---C---C---C---C---C---C---C-C*/
-/*--------------------------------------------------------------------
-  TODO: cbChangesEveryFrame definition (remove the comment)
---------------------------------------------------------------------*/
 cbuffer cbChangesEveryFrame : register(b2)
 {
     matrix World;
     float4 OutputColor;
     bool HasNormalMap;
-}
+};
 
 /*C+C+++C+++C+++C+++C+++C+++C+++C+++C+++C+++C+++C+++C+++C+++C+++C+++C
   Cbuffer:  cbLights
 
   Summary:  Constant buffer used for shading
 C---C---C---C---C---C---C---C---C---C---C---C---C---C---C---C---C-C*/
+struct PointLight
+{
+    float4 Position;
+    float4 Color;
+    matrix View;
+    matrix Projection;
+    float4 AttenuationDistance;
+};
+
 cbuffer cbLights : register(b3)
 {
-    float4 LightPositions[NUM_LIGHTS];
-    float4 LightColors[NUM_LIGHTS];
-    matrix LightViews[NUM_LIGHTS];
-    matrix LightProjections[NUM_LIGHTS];
+    PointLight PointLights[NUM_LIGHTS];
 };
 
 //--------------------------------------------------------------------------------------
@@ -75,7 +78,6 @@ cbuffer cbLights : register(b3)
 
   Summary:  Used as the input to the vertex shader
 C---C---C---C---C---C---C---C---C---C---C---C---C---C---C---C---C-C*/
-
 struct VS_PHONG_INPUT
 {
     float4 Position : POSITION;
@@ -83,12 +85,13 @@ struct VS_PHONG_INPUT
     float3 Normal : NORMAL;
     float3 Tangent : TANGENT;
     float3 Bitangent : BITANGENT;
+    row_major matrix mTransform : INSTANCE_TRANSFORM;
 };
 
 /*C+C+++C+++C+++C+++C+++C+++C+++C+++C+++C+++C+++C+++C+++C+++C+++C+++C
   Struct:   PS_PHONG_INPUT
 
-  Summary:  Used as the input to the pixel shader, output of the
+  Summary:  Used as the input to the pixel shader, output of the 
             vertex shader
 C---C---C---C---C---C---C---C---C---C---C---C---C---C---C---C---C-C*/
 struct PS_PHONG_INPUT
@@ -104,6 +107,7 @@ struct PS_PHONG_INPUT
 
 /*C+C+++C+++C+++C+++C+++C+++C+++C+++C+++C+++C+++C+++C+++C+++C+++C+++C
   Struct:   PS_LIGHT_CUBE_INPUT
+
   Summary:  Used as the input to the pixel shader, output of the 
             vertex shader
 C---C---C---C---C---C---C---C---C---C---C---C---C---C---C---C---C-C*/
@@ -115,30 +119,31 @@ struct PS_LIGHT_CUBE_INPUT
 //--------------------------------------------------------------------------------------
 // Vertex Shader
 //--------------------------------------------------------------------------------------
-/*--------------------------------------------------------------------
-  TODO: Vertex Shader function VSPhong definition (remove the comment)
---------------------------------------------------------------------*/
 PS_PHONG_INPUT VSPhong(VS_PHONG_INPUT input)
 {
     PS_PHONG_INPUT output = (PS_PHONG_INPUT) 0;
+	
     output.Position = input.Position;
     output.Position = mul(output.Position, World);
     output.Position = mul(output.Position, View);
     output.Position = mul(output.Position, Projection);
-    output.TexCoord = input.TexCoord;
-    output.Normal = normalize(mul(float4(input.Normal, 1), World).xyz);
-    output.WorldPosition = mul(input.Position, World);
-    
-    output.LightViewPosition = mul(input.Position, World);
-    output.LightViewPosition = mul(output.LightViewPosition, LightViews[0]);
-    output.LightViewPosition = mul(output.LightViewPosition, LightProjections[0]);
 
+    output.Normal = mul(float4(input.Normal, 0.0f), World).xyz;
+    output.TexCoord = input.TexCoord;
+	
+    output.WorldPosition = mul(input.Position, World);
+	
     if (HasNormalMap)
     {
         output.Tangent = normalize(mul(float4(input.Tangent, 0.0f), World).xyz);
         output.Bitangent = normalize(mul(float4(input.Bitangent, 0.0f), World).xyz);
     }
-
+    
+    output.LightViewPosition = input.Position;
+    output.LightViewPosition = mul(output.LightViewPosition, World);
+    output.LightViewPosition = mul(output.LightViewPosition, PointLights[0].View);
+    output.LightViewPosition = mul(output.LightViewPosition, PointLights[0].Projection);
+    
     return output;
 }
 
@@ -162,62 +167,64 @@ float LinearizeDepth(float depth)
 //--------------------------------------------------------------------------------------
 // Pixel Shader
 //--------------------------------------------------------------------------------------
-/*--------------------------------------------------------------------
-  TODO: Pixel Shader function PSPhong definition (remove the comment)
---------------------------------------------------------------------*/
 float4 PSPhong(PS_PHONG_INPUT input) : SV_Target
 {
-    float3 toViewDir  = normalize(input.WorldPosition.xyz - CameraPosition.xyz);
+    float3 toViewDir = normalize(CameraPosition.xyz - input.WorldPosition);
     float3 normal = normalize(input.Normal);
-    
-    
-    float4 color = txDiffuse[0].Sample(samLinear[0], input.TexCoord);
-    float3 ambient = float3(0.1f, 0.1f, 0.1f) * color.rgb;
-    float3 diffuse = float3(0, 0, 0);
-    float3 specular = float3(0, 0, 0);
-
-    float2 depthTexCoord;
-    depthTexCoord.x = input.LightViewPosition.x / input.LightViewPosition.w / 2.0f + 0.5f;
-    depthTexCoord.y = -input.LightViewPosition.y / input.LightViewPosition.w / 2.0f + 0.5f;
-
-    float closestDepth = shadowMapTexture.Sample(shadowMapSampler, depthTexCoord).r;
-    float currentDepth = input.LightViewPosition.z / input.LightViewPosition.w;
-
-    closestDepth = LinearizeDepth(closestDepth);
-    currentDepth = LinearizeDepth(currentDepth);
-
-    if (currentDepth > closestDepth + 0.001f)
-        return float4(ambient, 1.0f);
-    
-    for (uint i = 0; i < NUM_LIGHTS; i++)
-    {
-        float3 fromLightDir = normalize(input.WorldPosition - LightPositions[i].xyz);
-        
-        diffuse += saturate(dot(normal, -fromLightDir) * LightColors[i].xyz);
-
-        float3 reflectDirection = reflect(fromLightDir, normal);
-        if (diffuse.x > 0)
-        {
-            specular += pow(saturate(dot(reflectDirection, -toViewDir)), 32.0f) * LightColors[i].xyz;
-        }
-    }
-    
-    
+	
     if (HasNormalMap)
-    { // Sample the pixel in the normal map.
+    {
         float4 bumpMap = txDiffuse[1].Sample(samLinear[1], input.TexCoord);
-        // Expand the range of the normal value from (0, +1) to (-1, +1)
+        
         bumpMap = (bumpMap * 2.0f) - 1.0f;
-        // Calculate the normal from the data in the normal map
-        float3 bumpNormal = (bumpMap.x * input.Tangent) + (bumpMap.y * input.Bitangent) + (bumpMap.z * normal);
-        // Normalize the resulting bump normal and replace existing normal
+        
+        float3 bumpNormal = bumpMap.x * input.Tangent + bumpMap.y * input.Bitangent + bumpMap.z * normal;
         normal = normalize(bumpNormal);
     }
+	
+    float4 albedo = txDiffuse[0].Sample(samLinear[0], input.TexCoord);
+    float3 ambient = float3(0.1f, 0.1f, 0.1f);
+    float3 diffuse = float3(0, 0, 0);
+    float3 specular = float3(0, 0, 0);
+		
+    float2 depthTexCoord =
+    {
+        input.LightViewPosition.x / input.LightViewPosition.w / 2.0f + 0.5f,
+        -input.LightViewPosition.y / input.LightViewPosition.w / 2.0f + 0.5f
+    };
     
-    return float4(diffuse + specular + ambient, 1.0f) * txDiffuse[0].Sample(samLinear[0], input.TexCoord);
+    float closestDepth = shadowMapTexture.Sample(shadowMapSampler, depthTexCoord).r;
+    closestDepth = LinearizeDepth(closestDepth);
+    
+    float currentDepth = input.LightViewPosition.z / input.LightViewPosition.w;
+    currentDepth = LinearizeDepth(currentDepth);
+
+    if (currentDepth > closestDepth + 0.001f) // Shadow bias
+    {
+        return float4(ambient, 1) * albedo;
+    }
+    
+    float shininess = 20;
+    for (uint i = 0; i < NUM_LIGHTS; ++i)
+    {
+        float attEpsilon = 0.000001f;
+        float sqrDist = dot(
+            input.WorldPosition - PointLights[i].Position.xyz,
+            input.WorldPosition - PointLights[i].Position.xyz
+        );
+        float attFactor = PointLights[i].AttenuationDistance.z / (sqrDist + attEpsilon);
+        float4 attLightColor = PointLights[i].Color * attFactor;
+        
+        float3 fromLightDir = normalize(input.WorldPosition - PointLights[i].Position.xyz);
+	
+        diffuse += max(dot(normal, -fromLightDir), 0) * attLightColor.xyz;
+		
+        float3 refDir = reflect(fromLightDir, normal);
+        specular += pow(max(dot(refDir, toViewDir), 0), shininess) * attLightColor.xyz;
+    }
+
+    return float4(ambient + diffuse + specular, 1) * albedo;
 }
-
-
 
 float4 PSLightCube(PS_LIGHT_CUBE_INPUT input) : SV_Target
 {

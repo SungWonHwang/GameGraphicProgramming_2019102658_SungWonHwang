@@ -16,15 +16,19 @@ namespace library
 
 	  Modifies: [m_position, m_color].
 	M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M-M*/
-	PointLight::PointLight(_In_ const XMFLOAT4& position, _In_ const XMFLOAT4& color) :
+	PointLight::PointLight(_In_ const XMFLOAT4& position, _In_ const XMFLOAT4& color, _In_ FLOAT attenuationDistance) :
 		m_position(position),
-		m_color(color)
-		, m_eye(XMVectorZero())
-		, m_at(XMVectorZero())
-		, m_up(DEFAULT_UP)
-		, m_view(XMMatrixIdentity())
-		, m_projection(XMMatrixIdentity())
-	{ }
+		m_color(color),
+		m_eye(XMVectorZero()),
+		m_at(XMVectorZero()),
+		m_up(DEFAULT_UP),
+		m_view(),
+		m_projection(XMMatrixIdentity()),
+		m_attenuationDistance(attenuationDistance)
+	{
+	}
+
+	
 
 	/*M+M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M
 	  Method:   PointLight::GetPosition
@@ -53,16 +57,29 @@ namespace library
 	}
 
 	/*M+M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M
-	  Method:   PointLight::Update
+  Method:   PointLight::Update
 
-	  Summary:  Updates the light every frame
+  Summary:  Updates the light every frame
 
-	  Args:     FLOAT deltaTime
-				  Elapsed time
-	M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M-M*/
+  Args:     FLOAT deltaTime
+			  Elapsed time
+M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M-M*/
 	void PointLight::Update(_In_ FLOAT deltaTime)
 	{
 		UNREFERENCED_PARAMETER(deltaTime);
+	}
+
+	/*M+M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M
+	  Method:   PointLight::GetAttenuationDistance
+
+	  Summary:  Returns the attenuation distance
+
+	  Returns:  FLOAT
+				  Attenuation distance
+	M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M---M-M*/
+	FLOAT PointLight::GetAttenuationDistance() const
+	{
+		return m_attenuationDistance;
 	}
 
 	/*M+M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M+++M

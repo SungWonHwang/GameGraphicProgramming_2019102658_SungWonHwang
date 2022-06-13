@@ -62,6 +62,12 @@
     <FxCompile Include="Shaders\VS.hlsl">
       <Filter>Source Files\Shaders</Filter>
     </FxCompile>
+    <FxCompile Include="Shaders\CubeMap_PS.hlsl">
+      <Filter>Source Files\Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="Shaders\CubeMap_VS.hlsl">
+      <Filter>Source Files\Shaders</Filter>
+    </FxCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="Shaders\Shaders.fxh">
@@ -77,6 +83,9 @@
       <Filter>Source Files\Shaders</Filter>
     </None>
     <None Include="Shaders\ShadowShaders.fxh">
+      <Filter>Source Files\Shaders</Filter>
+    </None>
+    <None Include="Shaders\CubeMap.fxh">
       <Filter>Source Files\Shaders</Filter>
     </None>
   </ItemGroup>
@@ -117,6 +126,9 @@
       <Filter>Resource Files</Filter>
     </Image>
     <Image Include="Content\Cube\normal.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="Content\Common\Maskonaive2_1024.dds">
       <Filter>Resource Files</Filter>
     </Image>
   </ItemGroup>
